@@ -20,7 +20,7 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="container-fluid">
         <a class="navbar-brand" href="#">
-            <img th:src="@{/images/logo.png}"  src="../static/images/logo.png" width="auto" height="60" class="d-inline-block align-top" alt=""/>
+            <img th:src="@{/images/logo.png}" src="../../static/images/logo.png" width="auto" height="60" class="d-inline-block align-top" alt=""/>
         </a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
                 aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -53,8 +53,10 @@
                     <label for="name">Name</label>
                     <input type="text" class="form-control" required th:field="*{name}" name="name" id="name"
                            placeholder="Enter name">
-                    <p th:if="${productExistsMessage}" class="error" th:text="${productExistsMessage}"></p>
-                    <div id="successMessage" th:if="${successMessage}" th:text="${successMessage}" class="alert alert-success"></div>
+                    <p th:if="${productExistsMessage}" class="text-danger" th:text="${productExistsMessage}"></p>
+                    <p th:unless="${productExistsMessage}" class="text-success" th:text="${successMessage}"></p>
+
+<!--                    <div id="successMessage" th:if="${successMessage}" th:text="${successMessage}" class="alert alert-success"></div>-->
 
 
                 </div>
@@ -80,7 +82,7 @@
 <!--                </div>-->
                 <div class="form-group">
                     <label for="description">Product Description</label>
-                    <textarea class="form-control" rows="5" th:field="*{description}" name="description" id="description"></textarea>
+                    <textarea class="form-control" required rows="5" th:field="*{description}" name="description" id="description"></textarea>
                 </div>
             </div>
             <div class="col-sm-5">

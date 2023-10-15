@@ -23,6 +23,7 @@ public interface CategoryService {
 
     void saveCategory(Category category);
 
+//    public Optional<Category> getCategoryBooleanId(int id);
 
 
 }

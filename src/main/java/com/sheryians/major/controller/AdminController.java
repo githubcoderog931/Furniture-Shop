@@ -9,6 +9,7 @@ import com.sheryians.major.service.CategoryService;
 import com.sheryians.major.service.ProductService;
 import com.sheryians.major.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -23,6 +24,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Optional;
 
 @Controller
@@ -56,25 +58,35 @@ public class AdminController {
     }
 
     @PostMapping("/admin/categories/add")
-    public String postCatAdd(@ModelAttribute("category") @Valid Category category, BindingResult result,Model model){
-        if(result.hasErrors()){
-
+    public String postCatAdd(@ModelAttribute("category") @Valid Category category, BindingResult result, Model model) {
+        if (result.hasErrors()) {
             return "categoriesAdd";
         }
 
-        Optional<Category> existingCategory = categoryService.getCategoryByName(category.getName());
-        if(existingCategory.isPresent()){
-            model.addAttribute("categoryError","Category Already Exists ");
+        try {
+            categoryService.saveCategory(category);
+            model.addAttribute("successMessage", "Category added successfully.");
+            return "redirect:/admin/categories";
+        } catch (DataIntegrityViolationException e) {
+            model.addAttribute("categoryError", "Category with this name already exists.");
             return "categoriesAdd";
         }
-        categoryService.saveCategory(category);
-        return "redirect:/admin/categories";
     }
 
+
+
     @GetMapping("/admin/categories/delete/{id}")
-    public String deleteCat(@PathVariable int id){
-        categoryService.removeCategoryById(id);
-        return "redirect:/admin/categories";
+    public String deleteCat(@PathVariable int id, Model model){
+        try{
+            categoryService.removeCategoryById(id);
+
+        }catch (DataIntegrityViolationException e){
+            model.addAttribute("categories",categoryService.getAllCategory());
+            model.addAttribute("errorCat","There are products under this category!!");
+        }
+        model.addAttribute("successCat","There were no products under this category!!");
+        model.addAttribute("categories",categoryService.getAllCategory());
+        return "categories";
     }
 
     @RequestMapping("/admin/categories/update/{id}")
@@ -110,64 +122,48 @@ public class AdminController {
                                  Model model) throws IOException{
 
 
+
+
         String productName = productDTO.getName();
         int productCategory = productDTO.getCategoryId();
-        Product existingProduct = productService.findProductByName(productName);
+        List<Product> existingProducts = productService.findProductByName(productName);
 
-        if (productService.findProductByName(productName)!=null) {
+        if (!existingProducts.isEmpty()){
 
-            if(existingProduct.getCategory().getId() == productCategory) {
-                model.addAttribute("productExistsMessage", "A product with the same name already exists.");
-                model.addAttribute("categories", categoryService.getAllCategory());
+            for(Product existingProduct : existingProducts){
+                if (existingProduct.getCategory().getId() == productCategory){
+                        model.addAttribute("productExistsMessage", "A product with the same name already exists.");
+                        model.addAttribute("categories", categoryService.getAllCategory());
 
-                return "productsAdd";
-            }else{
-                Product product = new Product();
-                product.setId(productDTO.getId());
-                product.setName(productDTO.getName());
-                product.setCategory(categoryService.getCategoryById(productDTO.getCategoryId()).get());
-                product.setPrice(productDTO.getPrice());
-                product.setDescription(productDTO.getDescription());
-
-
-
-                String imageUUID;
-                if(!file.isEmpty()){
-                    imageUUID = file.getOriginalFilename();
-                    Path fileNamePath = Paths.get(uploadDir, imageUUID);
-                    Files.write(fileNamePath, file.getBytes());
-                }else{
-                    imageUUID = imgName;
+                        return "productsAdd";
                 }
-                product.setImageName(imageUUID);
-                productService.addProduct(product);
-                model.addAttribute("successMessage", "Product added successfully.");
-                return "redirect:/admin/products";
             }
+
+
         }
-        else {
-            Product product = new Product();
-            product.setId(productDTO.getId());
-            product.setName(productDTO.getName());
-            product.setCategory(categoryService.getCategoryById(productDTO.getCategoryId()).get());
-            product.setPrice(productDTO.getPrice());
-            product.setDescription(productDTO.getDescription());
+
+        Product product = new Product();
+        product.setId(productDTO.getId());
+        product.setName(productDTO.getName());
+        product.setCategory(categoryService.getCategoryById(productDTO.getCategoryId()).get());
+        product.setPrice(productDTO.getPrice());
+        product.setDescription(productDTO.getDescription());
 
 
 
-            String imageUUID;
-            if(!file.isEmpty()){
-                imageUUID = file.getOriginalFilename();
-                Path fileNamePath = Paths.get(uploadDir, imageUUID);
-                Files.write(fileNamePath, file.getBytes());
-            }else{
-                imageUUID = imgName;
-            }
-            product.setImageName(imageUUID);
-            productService.addProduct(product);
-            model.addAttribute("successMessage", "Product added successfully.");
-            return "redirect:/admin/products";
+        String imageUUID;
+        if(!file.isEmpty()){
+            imageUUID = file.getOriginalFilename();
+            Path fileNamePath = Paths.get(uploadDir, imageUUID);
+            Files.write(fileNamePath, file.getBytes());
+        }else{
+            imageUUID = imgName;
         }
+        product.setImageName(imageUUID);
+        productService.addProduct(product);
+        model.addAttribute("successMessage", "Product added successfully.");
+        return "redirect:/admin/products";
+
 
 //        boolean hasErrors = result.hasErrors();
 //        if (hasErrors){
@@ -179,10 +175,14 @@ public class AdminController {
     }
 
     @GetMapping("/admin/product/delete/{id}")
-    public String deleteProduct(@PathVariable long id){
+    public String deleteProduct(@PathVariable long id,Model model){
+
+        model.addAttribute("successPro","Product Removed!!");
         productService.removeProductById(id);
         return "redirect:/admin/products";
     }
+
+
 
     @GetMapping("/admin/product/update/{id}")
     public String updateProductGet(@PathVariable long id,Model model){

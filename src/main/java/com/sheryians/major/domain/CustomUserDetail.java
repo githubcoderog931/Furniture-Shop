@@ -13,8 +13,17 @@ import java.util.List;
 public class CustomUserDetail extends User implements UserDetails {
     @Autowired
     RoleRepository roleRepository;
+    @Autowired
+    User user;
     public CustomUserDetail(User user) {
-        super(user);
+
+        super.setId(user.getId());
+        super.setEmail(user.getEmail());
+        super.setFirstname(user.getFirstname());
+        super.setRoles(user.getRoles());
+        super.setPassword(user.getPassword());
+        this.user=user;
+
     }
 
     @Override
@@ -53,6 +62,6 @@ public class CustomUserDetail extends User implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true ;
+        return user.getEnable() ;
     }
 }

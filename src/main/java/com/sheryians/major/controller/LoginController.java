@@ -9,6 +9,7 @@ import com.sheryians.major.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,13 +31,13 @@ public class LoginController {
     @GetMapping("/login")
     public String login(){
         GlobalData.cart.clear();
-        return "login";
+        return "/users/login";
 
     }
     @GetMapping("/register")
     public String registerGet(){
 
-        return "register";
+        return "/users/register";
     }
 
     @PostMapping("/register")
@@ -49,6 +50,6 @@ public class LoginController {
         user.setEnable(true);
         userRepository.save(user);
         request.login(user.getEmail(),password);
-        return "redirect:/login";
+        return "redirect:/users/login";
     }
 }

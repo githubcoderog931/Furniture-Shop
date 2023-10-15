@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport"
@@ -7,14 +7,20 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
           integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-    
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css"
+          integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous">
     <title>Document</title>
+    <style>
+        .error{
+    color : red;
+    }
+    </style>
 </head>
 <body>
 <nav class="navbar navbar-expand-lg navbar-light bg-light" >
     <div class="container-fluid">
         <a class="navbar-brand" href="#">
-            <img th:src="@{/images/logo.png}"  src="../static/images/logo.png" width="auto" height="60" class="d-inline-block align-top" alt=""/>
+            <img th:src="@{/images/logo.png}" src="../../static/images/logo.png" width="auto" height="60" class="d-inline-block align-top" alt=""/>
         </a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -35,34 +41,44 @@
         </div>
     </div>
 </nav>
-<div class="container-fluid">
+<div class="container">
 
-    <a th:href="@{/admin/products/add}" style="margin: 20px 0" class="btn btn-primary">Add Product</a>
+    <a th:href="@{/admin/categories/add}" style="margin: 20px 0" class="btn btn-primary">Add Category</a>
     <table class="table">
+        <p th:if="${errorDelete}" class="error" th:text="${errorDelete}" ></p>
         <thead class="thead-light">
         <tr>
             <th scope="col">SN</th>
-            <th scope="col">Product Name</th>
-            <th scope="col">Category</th>
-            <th scope="col">Preview</th>
+            <th scope="col">Category Name</th>
+            <th scope="col">Category Description</th>
             <th scope="col">Delete</th>
             <th scope="col">Update</th>
         </tr>
         </thead>
         <tbody>
 
-        <tr th:each="product, iStat : ${products}">
+        <tr th:each="category, iStat : ${categories}">
             <th scope="row" th:text="${iStat.index + 1}">1</th>
-            <td th:text="${product.name}">Larry</td>
-            <td th:text="${product.category.name}">Larry</td>
-            <td><img src="" height="100px" width="100px"  th:src="@{${'/productImages/' + product.imageName}}"></td>
+            <td th:text="${category.name}">Larry</td>
+            <td th:text="${category.description}"></td>
+            <td><a href="" th:href="@{/admin/categories/delete/{id}(id=${category.id})}" class="btn btn-danger">Delete</a>
 
-            <td><a href="" th:href="@{/admin/product/delete/{id}(id=${product.id})}" class="btn btn-danger">Delete</a></td>
-            <td><a href="" th:href="@{/admin/product/update/{id}(id=${product.id})}" class="btn btn-warning">Update</a></td>
+            </td>
+            <td><a href="" th:href="@{/admin/categories/update/{id}(id=${category.id})}" class="btn btn-warning">Update</a></td>
 
         </tr>
         </tbody>
+
     </table>
+    <div>
+        <p th:if="${errorCat}" class="text-danger" th:text="${errorCat}"></p>
+        <p th:unless="${errorCat}" class="text-success" th:text="${successCat}"></p>
+
+    </div>
+
+
+
+
 </div>
 
 

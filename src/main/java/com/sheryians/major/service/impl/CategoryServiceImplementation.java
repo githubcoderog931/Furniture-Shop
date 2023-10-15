@@ -2,7 +2,9 @@ package com.sheryians.major.service.impl;
 
 
 import com.sheryians.major.domain.Category;
+import com.sheryians.major.domain.Product;
 import com.sheryians.major.repository.CategoryRepository;
+import com.sheryians.major.repository.ProductRepository;
 import com.sheryians.major.service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -16,6 +18,8 @@ public class CategoryServiceImplementation implements CategoryService {
 
     @Autowired
     CategoryRepository categoryRepository;
+    @Autowired
+    ProductRepository productRepository;
 
 
     @Override
@@ -50,6 +54,15 @@ public class CategoryServiceImplementation implements CategoryService {
 
     @Override
     public void saveCategory(Category category) {categoryRepository.save(category);}
+
+//    @Override
+//    public boolean getCategoryBooleanId(int id) {
+//       List<Product> optionalProduct = productRepository.getProductByCategory(id);
+//       if (optionalProduct!=null){
+//           return true;
+//       }
+//       return false;
+//    }
 
 
 }

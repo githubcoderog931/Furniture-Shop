@@ -9,14 +9,37 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
+import javax.servlet.http.HttpServletRequest;
+
 @Controller
 public class CartController {
     @Autowired
     ProductService productService;
     @GetMapping("/addToCart/{id}")
-    public String addToCart(@PathVariable int id){
-        GlobalData.cart.add(productService.getProductById(id).get());
-        return "redirect:/shop";
+    public String addToCart(@PathVariable int id, HttpServletRequest request){
+
+        String referer = request.getHeader("Referer");
+
+        if (referer != null && referer.contains("/shop")) {
+            // If the referring page contains "/shop", redirect to the shop page
+            GlobalData.cart.add(productService.getProductById(id).get());
+
+            return "redirect:/shop";
+        } else if (referer.contains("/cart")){
+            // Otherwise, redirect to the home page
+            GlobalData.cart.add(productService.getProductById(id).get());
+
+            return "redirect:/cart";
+        } else if (referer.contains("/search")) {
+            // Otherwise, redirect to the home page
+            GlobalData.cart.add(productService.getProductById(id).get());
+
+            return "redirect:/shop";
+        } else{
+            GlobalData.cart.add(productService.getProductById(id).get());
+            return "redirect:/";
+
+        }
     }
 
 
@@ -25,19 +48,23 @@ public class CartController {
         model.addAttribute("cartCount",GlobalData.cart.size());
         model.addAttribute("total",GlobalData.cart.stream().mapToDouble(Product::getPrice).sum());
         model.addAttribute("cart",GlobalData.cart);
-        return "cart";
+        model.addAttribute("products",productService.getAllProduct());
+        return "/users/cart1";
     }
 
     @GetMapping("/cart/removeItem/{index}")
     public String cartItemRemove(@PathVariable int index){
         GlobalData.cart.remove((index));
-        return "redirect:/cart";
+        return "redirect:/users/cart";
     }
 
     @GetMapping("/checkout")
     public String checkout(Model model){
+        model.addAttribute("cartCount",GlobalData.cart.size());
         model.addAttribute("total",GlobalData.cart.stream().mapToDouble(Product::getPrice).sum());
-        return "checkout";
+        model.addAttribute("cart",GlobalData.cart);
+        model.addAttribute("products",productService.getAllProduct());
+        return "/users/checkout1";
     }
 
 }

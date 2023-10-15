@@ -31,7 +31,7 @@ public interface ProductService {
     List<Product> ignoreCaseForSearch(String name);
 
 
-    Product findProductByName(String product);
+    List<Product> findProductByName(String product);
 
     Product findProductByCategory(String category);
 

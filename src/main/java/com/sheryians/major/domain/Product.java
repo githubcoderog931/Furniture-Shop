@@ -4,6 +4,7 @@ import com.sheryians.major.domain.Category;
 import lombok.Data;
 
 import javax.persistence.*;
+import javax.validation.constraints.Max;
 
 @Entity
 @Data
@@ -11,7 +12,6 @@ public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-
 
     private String name;
 

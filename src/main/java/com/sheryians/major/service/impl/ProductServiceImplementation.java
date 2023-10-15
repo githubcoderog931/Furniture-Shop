@@ -37,7 +37,7 @@ public class ProductServiceImplementation implements ProductService {
     public List<Product> ignoreCaseForSearch(String name) {return productRepository.findByNameContainingIgnoreCase(name);}
 
     @Override
-    public Product findProductByName(String product) {
+    public List<Product> findProductByName(String product) {
         return productRepository.findByName(product);
     }
 

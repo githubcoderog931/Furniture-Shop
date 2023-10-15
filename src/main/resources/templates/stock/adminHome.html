@@ -15,7 +15,7 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light" >
     <div class="container-fluid">
         <a class="navbar-brand" href="#">
-            <img th:src="@{/images/logo.png}"  src="../static/images/logo.png" width="auto" height="60" class="d-inline-block align-top" alt=""/>
+            <img th:src="@{/images/logo.png}" src="../../static/images/logo.png" width="auto" height="60" class="d-inline-block align-top" alt=""/>
         </a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -36,27 +36,43 @@
         </div>
     </div>
 </nav>
-<div class="container">
+<div class="jumbotron text-center">
+    <h1 class="display-4">Welcome back, Admin</h1>
+    <p>Easily manage your data from this admin <mark>CMS</mark></p>
+</div>
+<div class="container-fluid">
     <div class="row">
-        <div class="col-sm-4">
-            <form th:action="@{/admin/categories/add}" method="post" th:object="${category}">
-                <input type="hidden" name="id"  th:field="*{id}">
-                <div class="form-group">
-                    <label for="name">Name</label>
-                    <input type="text" class="form-control" required th:field="*{name}" name="name" id="name"  placeholder="Enter name">
-                    <div class="alert alert-warning" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
-                    <div class="alert alert-warning" th:if="${categoryError}" th:text="*{categoryError}"></div>
-
-                    <div class="form-group">
-                        <label for="description">Category Description</label>
-                        <textarea class="form-control" rows="5" th:field="*{description}" name="description" id="description"></textarea>
-                    </div>
+        <div class="col-sm-3 pt-3" >
+            <div class="card" style="background-color:white;">
+                <div class="card-body">
+                    <h4 class="card-title">Categories</h4>
+                    <p class="card-text">Manage the categories section here.</p>
+                    <a href="#" th:href="@{/admin/categories}" class="card-link btn btn-primary">Manage</a>
 
                 </div>
-
-                <button type="submit" class="btn btn-primary">Submit</button>
-            </form>
+            </div>
         </div>
+        <div class="col-sm-3 pt-3" >
+            <div class="card" style="background-color:white;">
+                <div class="card-body">
+                    <h4 class="card-title">Products</h4>
+                    <p class="card-text">Manage all the products here.</p>
+                    <a href="#" th:href="@{/admin/products}" class="card-link btn btn-primary">Manage</a>
+
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-3 pt-3" >
+            <div class="card" style="background-color:white;">
+                <div class="card-body">
+                    <h4 class="card-title">User Control</h4>
+                    <p class="card-text">Manage users here.</p>
+                    <a href="#" th:href="@{/admin/adminManageUsers}" class="card-link btn btn-primary">Manage</a>
+
+                </div>
+            </div>
+        </div>
+
     </div>
 </div>
 

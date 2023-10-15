@@ -32,14 +32,14 @@ public class ShopController {
         model.addAttribute("products",productService.getAllProduct());
         model.addAttribute("cartCount",GlobalData.cart.size());
 
-        return "shop";
+        return "shop1";
     }
 
     @GetMapping("/shop/category/{id}")
     public String shopByCategory(Model model, @PathVariable int id){
         model.addAttribute("categories",categoryService.getAllCategory());
         model.addAttribute("products",productService.getAllProductsByCategoryId(id));
-        return "shop";
+        return "shop1";
     }
 
     @GetMapping("/shop/viewproduct/{id}")
@@ -58,7 +58,20 @@ public class ShopController {
             searchResults = productService.ignoreCaseForSearch(name);
         }
         model.addAttribute("search", searchResults);
-        return "search";
+        model.addAttribute("cartCount",GlobalData.cart.size());
+        model.addAttribute("categories",categoryService.getAllCategory());
+
+
+        return "search1";
+    }
+
+    @GetMapping("/payment")
+    public String payment(Model model){
+        model.addAttribute("categories",categoryService.getAllCategory());
+        model.addAttribute("products",productService.getAllProduct());
+        model.addAttribute("cartCount",GlobalData.cart.size());
+
+        return "payment";
     }
 
 
