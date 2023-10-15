@@ -1,6 +1,6 @@
 package com.sheryians.major.controller;
 
-import com.sheryians.major.global.GlobalData;
+
 import com.sheryians.major.service.CategoryService;
 import com.sheryians.major.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +21,7 @@ public class HomeController {
     public String home(Model model){
         model.addAttribute("categories",categoryService.getAllCategory());
         model.addAttribute("products",productService.getAllProduct());
-        model.addAttribute("cartCount",GlobalData.cart.size());
+//        model.addAttribute("cartCount",GlobalData.cart.size());
         return "/users/homepage1";
     }
 }

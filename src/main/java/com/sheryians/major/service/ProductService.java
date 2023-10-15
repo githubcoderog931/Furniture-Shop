@@ -1,44 +1,48 @@
 package com.sheryians.major.service;
 
-
 import com.sheryians.major.domain.Product;
 import com.sheryians.major.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-public interface ProductService {
+
+@Service
+public class ProductService {
+    @Autowired
+    ProductRepository productRepository;
+    public List<Product> getAllProduct() {
+        return productRepository.findAll();
+    }
+
+    public void addProduct(Product product){
+        productRepository.save(product);
+    }
+
+    public void removeProductById(long id){
+        productRepository.deleteById(id);
+    }
+
+    public Optional<Product> getProductById(long id){
+        return productRepository.findById(id);
+    }
+
+    public List<Product> getAllProductsByCategoryId(int id){
+        return productRepository.findAllByCategory_Id(id);
+    }
+
+    public List<Product> ignoreCaseForSearch(String name) {return productRepository.findByNameContainingIgnoreCase(name);}
 
 
-    public List<Product> getAllProduct();
+    public List<Product> findProductByName(String product) {
+        return productRepository.findByName(product);
+    }
 
-    public void addProduct(Product product);
-
-    public void removeProductById(long id);
-
-    public Optional<Product> getProductById(long id);
-
-    public List<Product> getAllProductsByCategoryId(int id);
-
-
-    List<Product> ignoreCaseForSearch(String name);
-
-
-    List<Product> findProductByName(String product);
-
-    Product findProductByCategory(String category);
-
-
-
-
-
+    public Product findProductByCategory(String category) {
+        return productRepository.findByCategory(category);
+    }
 
 
 }

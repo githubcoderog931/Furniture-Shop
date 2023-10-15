@@ -1,18 +1,16 @@
 package com.sheryians.major.domain;
-
-import com.sheryians.major.domain.Category;
 import lombok.Data;
 
 import javax.persistence.*;
-import javax.validation.constraints.Max;
 
-@Entity
+
 @Data
-public class Product {
+@Entity
+public	class	Product	{
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-
+    @Column(unique = true)
     private String name;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -22,4 +20,10 @@ public class Product {
     private double weight;
     private String description;
     private String imageName;
+    private	String	manufacturer;
+    private	long	unitsInStock;
+    private	long	unitsInOrder;
+
+
 }
+

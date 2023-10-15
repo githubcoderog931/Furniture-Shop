@@ -1,6 +1,7 @@
 package com.sheryians.major.domain;
 
 import lombok.Data;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
@@ -11,12 +12,9 @@ import java.util.List;
 @Data
 @Table(name = "users")
 public class User {
-
-
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
-
 
     @Column(nullable = false)
     @NotEmpty(message = "{First name must not be empty}")
@@ -41,17 +39,20 @@ public class User {
 
     private Boolean enable;
 
+    @OneToOne(mappedBy = "user")
+    private Cart cart;
+
     public User(User user) {
         this.firstname = user.getFirstname();
         this.lastname = user.getLastname();
         this.email = user.getEmail();
         this.password = user.getPassword();
         this.roles = user.getRoles();
+        this.cart = user.getCart();
     }
 
-    public User(){
+    public User() {
 
     }
-
-
 }
+

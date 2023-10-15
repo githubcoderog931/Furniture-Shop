@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration Form with Shake Effect | CodingNepal</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Poppins", sans-serif;
+        }
+
+        body {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #5372F0;
+        }
+
+        ::selection {
+            color: #fff;
+            background: #5372F0;
+        }
+
+        .wrapper {
+            width: 380px;
+            padding: 40px 30px 50px 30px;
+            background: #fff;
+            border-radius: 5px;
+            text-align: center;
+            box-shadow: 10px 10px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .wrapper header {
+            font-size: 35px;
+            font-weight: 600;
+        }
+
+        .wrapper form {
+            margin: 40px 0;
+        }
+
+        form .field {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        form .field.shake {
+            animation: shake 0.3s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% {
+                margin-left: 0px;
+            }
+
+            20%, 80% {
+                margin-left: -12px;
+            }
+
+            40%, 60% {
+                margin-left: 12px;
+            }
+        }
+
+        form .field .input-area {
+            height: 50px;
+            width: 100%;
+            position: relative;
+        }
+
+        form input {
+            width: 100%;
+            height: 100%;
+            outline: none;
+            padding: 0 45px;
+            font-size: 18px;
+            background: none;
+            caret-color: #5372F0;
+            border-radius: 5px;
+            border: 1px solid #bfbfbf;
+            border-bottom-width: 2px;
+            transition: all 0.2s ease;
+        }
+
+        form .field input:focus,
+        form .field.valid input {
+            border-color: #5372F0;
+        }
+
+        form .field.shake input,
+        form .field.error input {
+            border-color: #dc3545;
+        }
+
+        .field .input-area i {
+            position: absolute;
+            top: 50%;
+            font-size: 18px;
+            pointer-events: none;
+            transform: translateY(-50%);
+        }
+
+        .input-area .icon {
+            left: 15px;
+            color: #bfbfbf;
+            transition: color 0.2s ease;
+        }
+
+        .input-area .error-icon {
+            right: 15px;
+            color: #dc3545;
+        }
+
+        form input:focus ~ .icon,
+        form .field.valid .icon {
+            color: #5372F0;
+        }
+
+        form .field.shake input:focus ~ .icon,
+        form .field.error input:focus ~ .icon {
+            color: #bfbfbf;
+        }
+
+        form input::placeholder {
+            color: #bfbfbf;
+            font-size: 17px;
+        }
+
+        form .field .error-txt {
+            color: #dc3545;
+            text-align: left;
+            margin-top: 5px;
+        }
+
+        form .field .error {
+            display: none;
+        }
+
+        form .field.shake .error,
+        form .field.error .error {
+            display: block;
+        }
+
+        form .pass-txt {
+            text-align: left;
+            margin-top: -10px;
+        }
+
+        .wrapper a {
+            color: #5372F0;
+            text-decoration: none;
+        }
+
+        .wrapper a:hover {
+            text-decoration: underline;
+        }
+
+        form input[type="submit"] {
+            height: 50px;
+            margin-top: 30px;
+            color: #fff;
+            padding: 0;
+            border: none;
+            background: #5372F0;
+            cursor: pointer;
+            border-bottom: 2px solid rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        form input[type="submit"]:hover {
+            background: #2c52ed;
+        }
+    </style>
+</head>
+
+<body>
+  <div class="wrapper">
+      <header>Registration Form</header>
+      <form action="#">
+          <div class="field first-name">
+              <div class="input-area">
+                  <input type="text" placeholder="First Name">
+                  <i class="icon fas fa-user"></i>
+                  <i class="error error-icon fas fa-exclamation-circle"></i>
+              </div>
+              <div class="error error-txt">First Name can't be blank</div>
+          </div>
+          <div class="field last-name">
+              <div class="input-area">
+                  <input type="text" placeholder="Last Name">
+                  <i class="icon fas fa-user"></i>
+                  <i class="error error-icon fas fa-exclamation-circle"></i>
+              </div>
+              <div class="error error-txt">Last Name can't be blank</div>
+          </div>
+          <div class="field email">
+              <div class="input-area">
+                  <input type="text" placeholder="Email Address">
+                  <i class="icon fas fa-envelope"></i>
+                  <i class="error error-icon fas fa-exclamation-circle"></i>
+              </div>
+              <div class="error error-txt">Enter a valid email address</div>
+          </div>
+          <div class="field password">
+              <div class="input-area">
+                  <input type="password" placeholder="Password">
+                  <i class="icon fas fa-lock"></i>
+                  <i class="error error-icon fas fa-exclamation-circle"></i>
+              </div>
+              <div class="error error-txt">Password can't be blank</div>
+          </div>
+          <div class="field repeat-password">
+              <div class="input-area">
+                  <input type="password" placeholder="Repeat Password">
+                  <i class="icon fas fa-lock"></i>
+                  <i class="error error-icon fas fa-exclamation-circle"></i>
+              </div>
+              <div class="error error-txt">Passwords do not match</div>
+          </div>
+          <input type="submit" value="Register">
+      </form>
+      <div class="sign-txt">Already a member? <a th:href="@{/login}">Login now</a></div>
+  </div>
+
+  <script>
+      const form = document.querySelector("form");
+const fNameField = form.querySelector(".first-name");
+const lNameField = form.querySelector(".last-name");
+const eField = form.querySelector(".email");
+const pField = form.querySelector(".password");
+const repeatPField = form.querySelector(".repeat-password");
+
+form.onsubmit = (e) => {
+    e.preventDefault();
+
+    // Check if first name is blank
+    (fNameField.querySelector("input").value == "") ? fNameField.classList.add("shake", "error") : fNameField.classList.remove("error");
+
+    // Check if last name is blank
+    (lNameField.querySelector("input").value == "") ? lNameField.classList.add("shake", "error") : lNameField.classList.remove("error");
+
+    // Check email format
+    checkEmail();
+
+    // Check if password is blank
+    (pField.querySelector("input").value == "") ? pField.classList.add("shake", "error") : pField.classList.remove("error");
+
+    // Check if passwords match
+    checkPasswordsMatch();
+
+    // Handle shake effect
+    setTimeout(() => {
+        fNameField.classList.remove("shake");
+        lNameField.classList.remove("shake");
+        eField.classList.remove("shake");
+        pField.classList.remove("shake");
+        repeatPField.classList.remove("shake");
+    }, 500);
+
+    // Function to check email format
+    function checkEmail() {
+        let pattern = /^[^ ]+@[^ ]+\.[a-z]{2,3}$/;
+        let emailInput = eField.querySelector("input");
+
+        if (!emailInput.value.match(pattern)) {
+            eField.classList.add("shake", "error");
+        } else {
+            eField.classList.remove("error");
+        }
+    }
+
+    // Function to check if passwords match
+    function checkPasswordsMatch() {
+        let passwordInput = pField.querySelector("input");
+        let repeatPasswordInput = repeatPField.querySelector("input");
+
+        if (passwordInput.value !== repeatPasswordInput.value) {
+            pField.classList.add("shake", "error");
+            repeatPField.classList.add("shake", "error");
+        } else {
+            pField.classList.remove("error");
+            repeatPField.classList.remove("error");
+        }
+    }
+
+    // If there are no errors, you can submit the form
+    if (!fNameField.classList.contains("error") &&
+        !lNameField.classList.contains("error") &&
+        !eField.classList.contains("error") &&
+        !pField.classList.contains("error") &&
+        !repeatPField.classList.contains("error")) {
+        window.location.href = form.getAttribute("action");
+    }
+}
+
+
+  </script>
+</body>
+</html>

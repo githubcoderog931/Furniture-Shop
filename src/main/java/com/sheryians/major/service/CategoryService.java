@@ -1,29 +1,66 @@
 package com.sheryians.major.service;
 
+
 import com.sheryians.major.domain.Category;
 import com.sheryians.major.repository.CategoryRepository;
+import com.sheryians.major.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
-public interface CategoryService {
+@Service
+public class CategoryService {
+
+    @Autowired
+    CategoryRepository categoryRepository;
+    @Autowired
+    ProductRepository productRepository;
 
 
 
-    public List<Category> getAllCategory();
+    public List<Category> getAllCategory() {
+        return categoryRepository.findAll();
+    }
 
-    public void addCategory(Category category);
 
-    public void removeCategoryById(int id);
+    public void addCategory(Category category) {
+        try {
+            categoryRepository.save(category);
+        } catch (DataIntegrityViolationException e) {
 
-    public Optional<Category> getCategoryById(int id);
+            throw new RuntimeException("Category name must be unique.");
+        }
+    }
 
-    public Optional<Category> getCategoryByName(String name);
 
-    void saveCategory(Category category);
+    public void removeCategoryById(int id) {
+        categoryRepository.deleteById(id);
+    }
 
-//    public Optional<Category> getCategoryBooleanId(int id);
+
+    public Optional<Category> getCategoryById(int id) {
+        return categoryRepository.findById(id);
+    }
+
+
+    public Optional<Category> getCategoryByName(String name) {
+        return categoryRepository.findCategoryByName("name");
+    }
+
+
+    public void saveCategory(Category category) {categoryRepository.save(category);}
+
+//    @Override
+//    public boolean getCategoryBooleanId(int id) {
+//       List<Product> optionalProduct = productRepository.getProductByCategory(id);
+//       if (optionalProduct!=null){
+//           return true;
+//       }
+//       return false;
+//    }
 
 
 }

@@ -1,9 +1,11 @@
 package com.sheryians.major.controller;
 
 
+import com.sheryians.major.domain.Cart;
 import com.sheryians.major.domain.Role;
 import com.sheryians.major.domain.User;
-import com.sheryians.major.global.GlobalData;
+
+import com.sheryians.major.repository.CartRepository;
 import com.sheryians.major.repository.RoleRepository;
 import com.sheryians.major.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,10 +29,12 @@ public class LoginController {
     UserRepository userRepository;
     @Autowired
     RoleRepository roleRepository;
+    @Autowired
+    CartRepository cartRepository;
 
     @GetMapping("/login")
     public String login(){
-        GlobalData.cart.clear();
+//        GlobalData.cart.clear();
         return "/users/login";
 
     }
@@ -42,14 +46,22 @@ public class LoginController {
 
     @PostMapping("/register")
     public String registerPost(@ModelAttribute("user") User user, HttpServletRequest request) throws ServletException {
+
+
         String password = user.getPassword();
         user.setPassword(bCryptPasswordEncoder.encode(password));
         List<Role> roles = new ArrayList<>();
         roles.add(roleRepository.findById(2).get());
         user.setRoles(roles);
         user.setEnable(true);
+
         userRepository.save(user);
         request.login(user.getEmail(),password);
-        return "redirect:/users/login";
+
+        Cart cart = new Cart();
+        cart.setUser(user);
+        cartRepository.save(cart);
+        user.setCart(cart);
+        return "redirect:/login";
     }
 }

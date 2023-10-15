@@ -1,10 +1,8 @@
 package com.sheryians.major.controller;
 
 import com.sheryians.major.domain.Product;
-import com.sheryians.major.global.GlobalData;
 
-import com.sheryians.major.repository.ProductRepository;
-import com.sheryians.major.repository.UserRepository;
+
 import com.sheryians.major.service.CategoryService;
 import com.sheryians.major.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +28,7 @@ public class ShopController {
     public String shop(Model model){
         model.addAttribute("categories",categoryService.getAllCategory());
         model.addAttribute("products",productService.getAllProduct());
-        model.addAttribute("cartCount",GlobalData.cart.size());
+//        model.addAttribute("cartCount",GlobalData.cart.size());
 
         return "shop1";
     }
@@ -45,7 +43,7 @@ public class ShopController {
     @GetMapping("/shop/viewproduct/{id}")
     public String viewProduct(Model model, @PathVariable int id){
         model.addAttribute("product",productService.getProductById(id).get() );
-        model.addAttribute("cartCount",GlobalData.cart.size());
+//        model.addAttribute("cartCount",GlobalData.cart.size());
 
         return "viewProduct";
     }
@@ -58,7 +56,7 @@ public class ShopController {
             searchResults = productService.ignoreCaseForSearch(name);
         }
         model.addAttribute("search", searchResults);
-        model.addAttribute("cartCount",GlobalData.cart.size());
+//        model.addAttribute("cartCount",GlobalData.cart.size());
         model.addAttribute("categories",categoryService.getAllCategory());
 
 
@@ -69,7 +67,7 @@ public class ShopController {
     public String payment(Model model){
         model.addAttribute("categories",categoryService.getAllCategory());
         model.addAttribute("products",productService.getAllProduct());
-        model.addAttribute("cartCount",GlobalData.cart.size());
+//        model.addAttribute("cartCount",GlobalData.cart.size());
 
         return "payment";
     }
