@@ -34,7 +34,6 @@ public class LoginController {
 
     @GetMapping("/login")
     public String login(){
-//        GlobalData.cart.clear();
         return "/users/login";
 
     }
@@ -54,10 +53,8 @@ public class LoginController {
         roles.add(roleRepository.findById(2).get());
         user.setRoles(roles);
         user.setEnable(true);
-
         userRepository.save(user);
         request.login(user.getEmail(),password);
-
         Cart cart = new Cart();
         cart.setUser(user);
         cartRepository.save(cart);

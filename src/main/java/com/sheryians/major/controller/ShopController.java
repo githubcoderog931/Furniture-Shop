@@ -11,7 +11,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,7 +27,6 @@ public class ShopController {
     public String shop(Model model){
         model.addAttribute("categories",categoryService.getAllCategory());
         model.addAttribute("products",productService.getAllProduct());
-//        model.addAttribute("cartCount",GlobalData.cart.size());
 
         return "shop1";
     }
@@ -43,8 +41,6 @@ public class ShopController {
     @GetMapping("/shop/viewproduct/{id}")
     public String viewProduct(Model model, @PathVariable int id){
         model.addAttribute("product",productService.getProductById(id).get() );
-//        model.addAttribute("cartCount",GlobalData.cart.size());
-
         return "viewProduct";
     }
 
@@ -56,7 +52,6 @@ public class ShopController {
             searchResults = productService.ignoreCaseForSearch(name);
         }
         model.addAttribute("search", searchResults);
-//        model.addAttribute("cartCount",GlobalData.cart.size());
         model.addAttribute("categories",categoryService.getAllCategory());
 
 
@@ -67,7 +62,6 @@ public class ShopController {
     public String payment(Model model){
         model.addAttribute("categories",categoryService.getAllCategory());
         model.addAttribute("products",productService.getAllProduct());
-//        model.addAttribute("cartCount",GlobalData.cart.size());
 
         return "payment";
     }

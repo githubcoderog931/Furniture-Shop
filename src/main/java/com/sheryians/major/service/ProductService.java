@@ -1,6 +1,7 @@
 package com.sheryians.major.service;
 
 import com.sheryians.major.domain.Product;
+import com.sheryians.major.domain.User;
 import com.sheryians.major.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -43,6 +44,7 @@ public class ProductService {
     public Product findProductByCategory(String category) {
         return productRepository.findByCategory(category);
     }
+
 
 
 }

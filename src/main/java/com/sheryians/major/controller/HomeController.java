@@ -21,7 +21,6 @@ public class HomeController {
     public String home(Model model){
         model.addAttribute("categories",categoryService.getAllCategory());
         model.addAttribute("products",productService.getAllProduct());
-//        model.addAttribute("cartCount",GlobalData.cart.size());
         return "/users/homepage1";
     }
 }
