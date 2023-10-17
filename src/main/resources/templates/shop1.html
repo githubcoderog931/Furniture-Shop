@@ -340,7 +340,7 @@
                                     <h5 th:text="${product.name}" class="card-title">GoPro HERO6 4K Action Camera - Black</h5>
                                     <p th:text="${product.price}" class="card-text">$790.50</p>
                                     <div class="card-footer d-flex align-items-end pt-3 px-0 pb-0 mt-auto">
-                                        <a th:href="@{/addToCart/{id}(id = ${product.id})}" class="btn btn-primary shadow-0 me-1">Add to cart</a>
+                                        <a th:href="@{/cart/add/{id}(id = ${product.id})}" class="btn btn-primary shadow-0 me-1">Add to cart</a>
                                         <a th:href="@{your-wishlist-link}" class="btn btn-light border px-2 pt-2 icon-hover">
                                             <i class="fas fa-heart fa-lg text-secondary px-1"></i>
                                         </a>
