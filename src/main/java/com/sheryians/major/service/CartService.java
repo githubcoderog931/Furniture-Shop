@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -22,7 +23,7 @@ public class CartService {
     @Autowired
     private CartItemRepository cartItemRepository;
 
-    public Cart addToCart(User user, Long productId, int quantity) {
+    public Cart addToCart(User user, Long productId) {
         // Retrieve the user's cart
         Cart cart = user.getCart();
 
@@ -45,14 +46,14 @@ public class CartService {
         if (existingCartItem.isPresent()) {
             // If the product is already in the cart, update the quantity
             CartItem cartItem = existingCartItem.get();
-            int newQuantity = cartItem.getQuantity() + quantity;
+            int newQuantity = cartItem.getQuantity() + 1;
             cartItem.setQuantity(newQuantity);
             cartItemRepository.save(cartItem);
         } else {
             // If the product is not in the cart, create a new CartItem
             CartItem cartItem = new CartItem();
             cartItem.setProduct(product);
-            cartItem.setQuantity(quantity);
+            cartItem.setQuantity(1);
             cartItem.setCart(cart);
 //            cart.getCartItems().add(cartItem);
             cartItemRepository.save(cartItem);
@@ -71,6 +72,8 @@ public class CartService {
     public Cart getCartForUser(String username){
         return cartRepository.findByUser_Email(username);
     }
+
+
 }
 
 
