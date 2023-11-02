@@ -1,16 +1,21 @@
 package com.sheryians.major.domain;
 import lombok.Data;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.persistence.*;
 import java.util.Objects;
 
 
-@Data
 @Entity
+@Table(name = "cart_items")
 public class CartItem {
+
+    //define fields
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
 
     @ManyToOne
@@ -21,10 +26,29 @@ public class CartItem {
     @JoinColumn(name = "product_id")
     private Product product;
 
+    @Column(name = "quantity")
     private int quantity;
 
-    // Constructors, getters, and setters
+    @ManyToOne
+    @JoinColumn(name = "user_id_fk")
+    private User user;
 
+
+    // define constructors
+
+    public CartItem(){
+
+    }
+
+    public CartItem(User user,Cart cart, Product product, int quantity) {
+        this.cart = cart;
+        this.product = product;
+        this.quantity = quantity;
+        this.user = user;
+    }
+
+
+    // define getters/setters
 
     public Long getId() {
         return id;
@@ -57,16 +81,38 @@ public class CartItem {
     public void setQuantity(int quantity) {
         this.quantity = quantity;
     }
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        CartItem cartItem = (CartItem) o;
-        return Objects.equals(id, cartItem.id);
+
+    public User getUser() {
+        return user;
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
+    public void setUser(User user) {
+        this.user = user;
     }
+
+    // define toString
+
+    @Override
+    public String toString() {
+        return "CartItem{" +
+                "id=" + id +
+                ", cart=" + cart +
+                ", product=" + product +
+                ", quantity=" + quantity +
+                '}';
+    }
+
+
+    //    @Override
+//    public boolean equals(Object o) {
+//        if (this == o) return true;
+//        if (o == null || getClass() != o.getClass()) return false;
+//        CartItem cartItem = (CartItem) o;
+//        return Objects.equals(id, cartItem.id);
+//    }
+//
+//    @Override
+//    public int hashCode() {
+//        return Objects.hash(id);
+//    }
 }

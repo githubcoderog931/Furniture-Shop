@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Placed Successfully</title>
+    <style>
+      body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background-color: #f0f0f0;
+}
+
+.confirmation {
+    text-align: center;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+.animation-container {
+    margin-top: 20px;
+    animation: bounce 2s infinite;
+}
+
+.animation-circle {
+    width: 50px;
+    height: 50px;
+    background-color: #3498db;
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-10px);
+    }
+    60% {
+        transform: translateY(-5px);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+}
+/* Your existing CSS code */
+
+.tick-mark {
+    width: 30px;
+    height: 30px;
+    border: 2px solid #27ae60;
+    border-top: none;
+    border-right: none;
+    transform: rotate(45deg);
+    position: absolute;
+    left: 10px;
+    top: 10px;
+    animation: tick 0.5s ease-in-out 3.5s forwards;
+}
+
+@keyframes tick {
+    0% {
+        transform: rotate(45deg) scale(0);
+    }
+    100% {
+        transform: rotate(45deg) scale(1);
+    }
+}
+
+
+    </style>
+  
+</head>
+<body>
+  <div class="confirmation">
+    <h1>Your Order Has Been Placed Successfully!</h1>
+    <div class="animation-container">
+        <div class="animation-circle"></div>
+        <div class="tick-mark"></div>
+    </div>
+</div>
+    <script>
+      // Automatically redirect to the home page after 3 seconds
+setTimeout(function() {
+    window.location.href = "/"; // Replace "home.html" with your actual home page URL
+}, 3000);
+
+    </script>
+</body>
+</html>

@@ -1,32 +1,38 @@
 package com.sheryians.major.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.Getter;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
+@Data
 @Table(name = "users")
 public class User {
+
+    // define fields
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "id")
     private Integer id;
 
-    @Column(nullable = false)
+    @Column(name = "first_name",nullable = false)
     @NotEmpty(message = "{First name must not be empty}")
     private String firstname;
 
+    @Column(name = "last_name")
     private String lastname;
 
-    @Column(nullable = false, unique = true)
+    @Column(name = "email",nullable = false, unique = true)
     @NotEmpty
     @Email(message = "{error.invalid_email}")
     private String email;
 
+    @Column(name = "password")
     private String password;
 
     @ManyToMany(cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
@@ -37,10 +43,31 @@ public class User {
     )
     private List<Role> roles;
 
+    @Column(name = "user_enabled")
     private Boolean enable;
 
     @OneToOne(mappedBy = "user")
     private Cart cart;
+
+    @OneToMany(mappedBy = "user")
+    @Column(name = "address_id_fk")
+    private List<Address> addresses;
+
+    @OneToMany(mappedBy = "user")
+    @Column(name = "cart_items_fk")
+    private List<CartItem> cartItem;
+
+    private boolean Active;
+    private boolean verified;
+    private String otp;
+    private LocalDateTime otpGeneratedTime;
+
+
+    // define constructors
+
+    public User(){
+
+    }
 
     public User(User user) {
         this.firstname = user.getFirstname();
@@ -48,12 +75,15 @@ public class User {
         this.email = user.getEmail();
         this.password = user.getPassword();
         this.roles = user.getRoles();
+        this.enable = user.getEnable();
         this.cart = user.getCart();
+        this.addresses = user.getAddresses();
+        this.cartItem = (List<CartItem>) user.getCartItem();
+
     }
 
-    public User() {
 
-    }
+    // define getters/setters
 
     public Integer getId() {
         return id;
@@ -118,5 +148,38 @@ public class User {
     public void setCart(Cart cart) {
         this.cart = cart;
     }
+
+    public List<Address> getAddresses() {
+        return addresses;
+    }
+
+    public void setAddresses(List<Address> addresses) {
+        this.addresses = addresses;
+    }
+
+    public CartItem getCartItem() {
+        return (CartItem) cartItem;
+    }
+
+    public void setCartItem(CartItem cartItem) {
+        this.cartItem = (List<CartItem>) cartItem;
+    }
+
+    // define toString
+
+//    @Override
+//    public String toString() {
+//        return "User{" +
+//                "id=" + id +
+//                ", firstname='" + firstname + '\'' +
+//                ", lastname='" + lastname + '\'' +
+//                ", email='" + email + '\'' +
+//                ", password='" + password + '\'' +
+//                ", roles=" + roles +
+//                ", enable=" + enable +
+//                ", cart=" + cart +
+//                ", addresses=" + addresses +
+//                '}';
+//    }
 }
 

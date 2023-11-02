@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 
 @Service
-public class CustomUserDetailService implements UserDetailsService{
+public class CustomUserDetailService implements UserDetailsService {
 
     @Autowired
 
@@ -26,8 +26,11 @@ public class CustomUserDetailService implements UserDetailsService{
 
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         User user = userRepository.findByEmail(email);
-        if (user == null){
+        if (user == null) {
             throw new UsernameNotFoundException("User not found");
+        }
+        if (!user.isVerified()) {
+            throw new RuntimeException("User not found");
         }
 
         // Check if the user has a cart; if not, create one
@@ -46,10 +49,6 @@ public class CustomUserDetailService implements UserDetailsService{
 
         return new CustomUserDetail(user);
     }
-
-
-
-
 
 
 }

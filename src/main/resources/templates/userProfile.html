@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <style>
+        .icon-hover:hover {
+            border-color: #3b71ca !important;
+            background-color: white !important;
+        }
+
+        .icon-hover:hover i {
+            color: #3b71ca !important;
+        }
+    </style>
+</head>
+<body>
+<!-- Main Navigation -->
+<header>
+    <!-- Jumbotron -->
+    <div class="p-3 text-center bg-white border-bottom">
+        <div class="container">
+            <div class="row gy-3">
+                <!-- Left elements -->
+                <div class="col-lg-2 col-sm-4 col-4">
+                    <a href="https://mdbootstrap.com/" target="_blank" class="float-start">
+                        <img th:src="@{/images/logo.png}" src="../../static/images/logo.png" width="auto" height="50" />
+                    </a>
+                </div>
+                <!-- Left elements -->
+
+                <!-- Center elements -->
+                <div class="order-lg-last col-lg-5 col-sm-8 col-8">
+                    <div class="d-flex float-end">
+                        <a href="#" class="me-1 border rounded py-1 px-3 nav-link d-flex align-items-center" target="_blank">
+                            <i class="fas fa-heart m-1 me-md-2"></i>
+                            <p class="d-none d-md-block mb-0">Wishlist</p>
+                        </a>
+                        <a class="btn btn-outline-dark mt-auto" th:href="@{/cart}" href="#">
+                            Cart
+                            <i class="bi-cart-fill me-1"></i>
+                            <span th:text="${cartCount}" class="badge bg-dark text-white ms-1 rounded-pill">0</span>
+                        </a>
+                        <div sec:authorize="isAnonymous()">
+                            <a th:href="@{/login}" class="me-1 btn btn-outline-dark mt-auto">Sign in</a>
+                        </div>
+                        <div sec:authorize="isAuthenticated()">
+                            <a th:href="@{/logout}" class="ms-1 me-3 btn btn-outline-dark mt-auto">Sign Out</a>
+                        </div>
+                    </div>
+                </div>
+                <!-- Center elements -->
+
+                <!-- Right elements -->
+                <div class="col-lg-5 col-md-12 col-12">
+                    <form class="form-inline my-2 my-lg-0" action="/search" method="get">
+                        <div class="input-group">
+                            <input type="text" class="form-control mr-2" name="name" placeholder="Search by name" aria-label="Search">
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary" type="submit">Search</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <!-- Right elements -->
+            </div>
+        </div>
+    </div>
+    <!-- Jumbotron -->
+
+    <!-- Heading -->
+    <div class="bg-primary mb-4">
+        <div class="container py-4">
+            <h3 class="text-white mt-2">Search Your Fav Ones</h3>
+            <!-- Breadcrumb -->
+            <nav class="d-flex mb-2">
+                <h6 class="mb-0">
+                    <a href="/" class="text-white-50">Home</a>
+                    <span class="text-white-50 mx-2"> > </span>
+                    <a href="/shop" class="text-white-50">Shop</a>
+                    <span class="text-white-50 mx-2"> > </span>
+                    <a href="" class="text-white"><u>Search</u></a>
+                </h6>
+            </nav>
+            <!-- Breadcrumb -->
+        </div>
+    </div>
+    <!-- Heading -->
+</header>
+
+<div class="container">
+    <div class="row">
+        <!-- Left Column -->
+        <div class="col-md-4">
+            <div class="card user-card">
+                <div class="card-header">
+                    <h5>Profile</h5>
+                </div>
+                <div class="card-block ms-5">
+                    <div class="user-image mt-3">
+                        <img src="https://bootdey.com/img/Content/avatar/avatar7.png" height="100px"  class="img-radius" alt="User-Profile-Image">
+                    </div>
+                    <h6 class="f-w-600 m-t-25 m-b-10 mt-3" ><span th:text="${user.firstname}">dd</span> &nbsp; <span th:text="${lastName}">dd</span></h6>
+                    <h5 class="f-w-600 m-t-25 m-b-10 mt-3" th:text="${user.email}">email : </h5>
+                </div>
+                <div class="col-md-10 m-3">
+                    <div class="card mt-3 mb-3 shadow-lg rounded-3">
+                        <div class="card-body">
+                            <h5 class="card-title"></h5>
+                            <p class="card-text">You can edit, manage and your account details....</p>
+                            <!-- <a href="#" class="btn btn-primary"></a> -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- End Left Column -->
+
+        <!-- Right Column -->
+        <div class="col-md-8">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card mt-3 mb-3 shadow-lg rounded-3">
+                        <div class="card-body">
+                            <h5 class="card-title">Show Address</h5>
+                            <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+                            <a th:href="@{/showAddress}" class="btn btn-primary">see addresses</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card mt-3 mb-3 shadow-lg rounded-3">
+                        <div class="card-body">
+                            <h5 class="card-title">Show Orders</h5>
+                            <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+                            <a th:href="@{/orderHistory}" class="btn btn-primary">view order history</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card mt-3 mb-3 shadow-lg rounded-3">
+                        <div class="card-body">
+                            <h5 class="card-title">Add Address</h5>
+                            <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+                            <a th:href="@{/newAddress}" class="btn btn-primary">add a new address</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card mt-3 mb-3 shadow-lg rounded-3">
+                        <div class="card-body">
+                            <h5 class="card-title">Edit Profile</h5>
+                            <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+                            <a th:href="@{/editProfile}" class="btn btn-primary">edit profile details</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Add more content for the right column as needed -->
+        </div>
+        <!-- End Right Column -->
+    </div>
+</div>
+</body>
+</html>

@@ -23,8 +23,9 @@ public class CartService {
     @Autowired
     private CartItemRepository cartItemRepository;
 
-    public Cart addToCart(User user, Long productId) {
+    public Cart addToCart(User user, Long productId, int quantity) {
         // Retrieve the user's cart
+        quantity = 1;
         Cart cart = user.getCart();
 
         if (cart == null) {
@@ -46,8 +47,8 @@ public class CartService {
         if (existingCartItem.isPresent()) {
             // If the product is already in the cart, update the quantity
             CartItem cartItem = existingCartItem.get();
-            int newQuantity = cartItem.getQuantity() + 1;
-            cartItem.setQuantity(newQuantity);
+            quantity = cartItem.getQuantity() + 1;
+            cartItem.setQuantity(quantity);
             cartItemRepository.save(cartItem);
         } else {
             // If the product is not in the cart, create a new CartItem
@@ -55,15 +56,15 @@ public class CartService {
             cartItem.setProduct(product);
             cartItem.setQuantity(1);
             cartItem.setCart(cart);
-//            cart.getCartItems().add(cartItem);
+            cart.getCartItems().add(cartItem);
             cartItemRepository.save(cartItem);
         }
 
         // Recalculate the cart's total
-//        cart.calculateCartTotal();
+        cart.calculateCartTotal();
 
         // Save the updated cart to the database
-//        cartRepository.save(cart);
+        cartRepository.save(cart);
 
         return cart;
     }
@@ -72,6 +73,7 @@ public class CartService {
     public Cart getCartForUser(String username){
         return cartRepository.findByUser_Email(username);
     }
+
 
 
 }

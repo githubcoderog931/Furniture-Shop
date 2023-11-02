@@ -38,6 +38,7 @@ public class CartController {
         @GetMapping("cart/add/{productId}")
         public String addToCart(@PathVariable Long productId,
                                 Principal principal) {
+            int quantity = 1;
             if (principal == null) {
                 // Handle the case where the user is not logged in
                 return "redirect:/login"; // Redirect to the login page
@@ -50,7 +51,7 @@ public class CartController {
             User user = userService.findByUsername(username);
 
             if (user != null) {
-                cartService.addToCart(user, productId);
+                cartService.addToCart(user, productId, quantity);
             }
 
             // Redirect to a page, e.g., product details or cart view
@@ -72,6 +73,13 @@ public class CartController {
                     tax = 80.0;
                     totalPrice = totalPrice - (discount + tax);
                 }
+            if(username != null){
+                if (cart != null){
+                    List<CartItem> cartItemList =  cart.getCartItems();
+                    model.addAttribute("cartCount", cartItemList.stream().map(x -> x.getQuantity()).reduce(0, Integer::sum));
+
+                }
+            }
                 model.addAttribute("items",cartItems);
                 model.addAttribute("cart",cart);
                 model.addAttribute("total",totalPrice);

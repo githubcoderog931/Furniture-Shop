@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit User Profile</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <!-- Header -->
+    <nav class="navbar navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="#">User Profile</a>
+        </div>
+    </nav>
+
+    <!-- Content -->
+    <div class="container mt-4">
+        <div class="row">
+            <!-- Left Column -->
+            <div class="col-md-4">
+                <div class="card user-card  shadow-lg">
+                    <div class="card-header">
+                        <h5>Profile</h5>
+                    </div>
+                    <div class="card-block ms-5" style="margin-left: 4rem;">
+                        <div class="user-image mt-3">
+                            <img src="https://bootdey.com/img/Content/avatar/avatar7.png" height="100px"  class="img-radius" alt="User-Profile-Image">
+                        </div>
+                        <h5 class="f-w-600 m-t-25 m-b-10 mt-3" ><span th:text="${user.firstname}">dd</span> &nbsp; <span th:text="${lastName}">dd</span></h5>
+                        <h6 class="f-w-600 m-t-25 m-b-10 mt-3" th:text="${user.email}">email : </h6>
+                    </div>
+                    <div class="col-md-10 m-3">
+                        <div class="card mt-3 mb-3 shadow-lg rounded-3">
+                            <div class="card-body">
+                                <h5 class="card-title"></h5>
+                                <p class="card-text">You can edit, manage and your account details....</p>
+                                <!-- <a href="#" class="btn btn-primary"></a> -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Edit Profile Form -->
+            <div class="col-md-8">
+                <div class="card shadow-lg">
+                    <div class="card-header">
+                        Edit Profile
+                    </div>
+                    <div class="card-body">
+                        <form th:action="@{/editProfile}" method="post">
+                            <div class="form-group">
+                                <label for="fullName">First Name</label>
+                                <input type="text" class="form-control shadow-sm" id="fullName" name="firstname" placeholder="here" th:value="${user.firstname}">
+                            </div>
+                            <div class="form-group">
+                              <label for="fullName">Last Name</label>
+                              <input type="text" class="form-control shadow-sm" id="fullName" name="lastname" th:value="${user.lastname}">
+                          </div>
+                            <!-- <div class="form-group">
+                                <label for="email">Email</label>
+                                <input type="email" class="form-control shadow-sm" name="email" id="email" th:value="${user.email}">
+                            </div> -->
+                            <button type="submit" class="btn btn-primary shadow-lg">Save Changes</button>
+                        </form>
+                    </div>
+                    <div class="col-md-10 m-3">
+                      <div class="card mt-3 mb-3 shadow-lg rounded-3">
+                          <div class="card-body">
+                              <h5 class="card-title">Change Password</h5>
+                              <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+                              <a href="#" class="btn btn-primary">set a new one</a>
+                          </div>
+                      </div>
+                  </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-light text-center py-3">
+        &copy; 2023 YourWebsite.com
+    </footer>
+
+    <!-- Bootstrap JS and jQuery -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <title>Order Details</title>
+</head>
+<body>
+    <div class="container">
+        <h1 class="my-4">Order Details</h1>
+
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">
+                        Order Information
+                    </div>
+                    <div class="card-body">
+                      <div class="container mt-5">
+                        <div class="row">
+                            <div class=" col-md-6" th:each="orders : ${orders}">
+                                <div class="card order-card">
+                                    <div class="card-header">
+                                      Order id : <span th:text="${orders.id}"></span>
+                                    </div>
+                                    <div class="card-body">
+                                        <h5 class="card-title">Order Date: <span th:text="${orders.localDate}"></span></h5>
+                                        <p class="card-text ">Total Amount: <span th:text="${orders.amount}">fd</span> </p>
+                                        <p class="card-text ">Name: <span th:text="${orders.user.firstname}">df</span> </p>
+                                        <p class="card-text ">email: <span th:text="${orders.user.email}">fd</span> </p>
+                                        <p class="card-text ">Order total: <span th:text="${orders.amount}">dfgh</span>₹ </p>
+                                        <!-- <a th:href="@{/deleteOrder/{id}(id=${orders.id})}">Remove order</a> -->
+                                        
+                
+                                    </div>
+                                </div>
+                            </div>
+                
+                            
+                        </div>
+                    </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        Order Summary
+                    </div>
+                    <div class="card-body">
+                        <!-- Your order summary here -->
+                    </div>
+                </div>
+
+                <div class="card mt-4">
+                    <div class="card-header">
+                        Shipping Details
+                    </div>
+                    <div class="card-body">
+                        <!-- Your shipping details here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JavaScript (you can use a local copy or a CDN) -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

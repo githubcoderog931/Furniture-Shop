@@ -1,36 +1,73 @@
 package com.sheryians.major.domain;
 
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
 @Entity
-@Data
+@Table(name = "cart")
 public class Cart {
+
+
+    // define fields
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
 
+    @Getter
     @OneToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id_fk",unique = true)
     private User user;
 
     @OneToMany(mappedBy = "cart")
-    private Set<CartItem> cartItems = new HashSet<>();
+    @Column(name = "cart_item_fk")
+    private List<CartItem> cartItems;
 
-    private BigDecimal grandTotal;
+//    @ManyToMany
+//    @JoinTable(
+//            name = "cart_product",
+//            joinColumns = @JoinColumn(name = "cart_id"),
+//            inverseJoinColumns = @JoinColumn(name = "product_id")
+//    )
+    public double calculateCartTotal() {
+        double grandTotal = 0.0;
 
-    @ManyToMany
-    @JoinTable(
-            name = "cart_product",
-            joinColumns = @JoinColumn(name = "cart_id"),
-            inverseJoinColumns = @JoinColumn(name = "product_id")
-    )
-    private Set<Product> products = new HashSet<>();
+        for (CartItem cartItem : cartItems) {
+            Product product = cartItem.getProduct();
+            Double itemTotal = (product != null && product.getPrice() != null)
+                    ? product.getPrice() * cartItem.getQuantity()
+                    : 0.0;
+
+            grandTotal += itemTotal;
+        }
+
+        return grandTotal;
+    }
+
+
+    // define constructors
+
+    public Cart(){
+
+    }
+
+    public Cart(User user, List<CartItem> cartItems) {
+        this.user = user;
+        this.cartItems = cartItems;
+    }
+
+
+    // define getters/setters
+
 
     public Long getId() {
         return id;
@@ -48,58 +85,40 @@ public class Cart {
         this.user = user;
     }
 
-    public Set<CartItem> getCartItems() {
+    public List<CartItem> getCartItems() {
         return cartItems;
     }
 
-    public void setCartItems(Set<CartItem> cartItems) {
+    public void setCartItems(List<CartItem> cartItems) {
         this.cartItems = cartItems;
     }
 
-    public BigDecimal getGrandTotal() {
-        return grandTotal;
-    }
 
-    public void setGrandTotal(BigDecimal grandTotal) {
-        this.grandTotal = grandTotal;
-    }
+    // define to string
 
-    public Set<Product> getProducts() {
-        return products;
-    }
-
-    public void setProducts(Set<Product> products) {
-        this.products = products;
-    }
-
-    public double calculateCartTotal() {
-        double grandTotal = 0.0;
-
-        for (CartItem cartItem : cartItems) {
-            Product product = cartItem.getProduct();
-            Double itemTotal = (product != null && product.getPrice() != null)
-                    ? product.getPrice() * cartItem.getQuantity()
-                    : 0.0;
-
-            grandTotal += itemTotal;
-        }
-
-        return grandTotal;
-    }
+//    @Override
+//    public String toString() {
+//        return "Cart{" +
+//                "id=" + id +
+//                ", user=" + user +
+//                ", cartItems=" + cartItems +
+//                '}';
+//    }
 
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Cart cart = (Cart) o;
-        return Objects.equals(id, cart.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
-    }
+//
+//    @Override
+//    public boolean equals(Object o) {
+//        if (this == o) return true;
+//        if (o == null || getClass() != o.getClass()) return false;
+//        Cart cart = (Cart) o;
+//        return Objects.equals(id, cart.id);
+//    }
+//
+//    @Override
+//    public int hashCode() {
+//        return Objects.hash(id);
+//    }
 
 
 }

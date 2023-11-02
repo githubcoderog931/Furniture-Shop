@@ -1,0 +1,127 @@
+package com.sheryians.major.domain;
+
+import javax.persistence.*;
+
+import com.sheryians.major.domain.Address;
+import com.sheryians.major.domain.OrderItem;
+import com.sheryians.major.domain.User;
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+
+
+
+@Entity
+@Table(name = "orders")
+public class Orders {
+
+    // define fields
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "id", nullable = false)
+    private Long id;
+
+    @Column(name = "amount")
+    private int amount;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id_fk")
+    private User user;
+
+    @ManyToOne
+    @JoinColumn(name = "address_id_fk")
+    private Address address;
+
+    @OneToMany(mappedBy = "orders", cascade = CascadeType.ALL)
+    @Column(name = "orders_id_fk")
+    private List<OrderItem> orderItems;
+
+    @Column(name = "order_placed_date")
+    private LocalDate localDate;
+
+
+    // define constructors
+
+    public Orders(){
+
+    }
+
+    public Orders(int amount, User user, Address address, List<OrderItem> orderItems, LocalDate localDate) {
+        this.amount = amount;
+        this.user = user;
+        this.address = address;
+        this.orderItems = orderItems;
+        this.localDate = localDate;
+    }
+
+
+    // define getters/setters
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public int getAmount() {
+        return amount;
+    }
+
+    public void setAmount(int amount) {
+        this.amount = amount;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public Address getAddress() {
+        return address;
+    }
+
+    public void setAddress(Address address) {
+        this.address = address;
+    }
+
+    public List<OrderItem> getOrderItems() {
+        return orderItems;
+    }
+
+    public void setOrderItems(List<OrderItem> orderItems) {
+        this.orderItems = orderItems;
+    }
+
+    public LocalDate getLocalDate() {
+        return localDate;
+    }
+
+    public void setLocalDate(LocalDate localDate) {
+        this.localDate = localDate;
+    }
+
+
+    // define toString
+
+//    @Override
+//    public String toString() {
+//        return "Orders{" +
+//                "id=" + id +
+//                ", amount=" + amount +
+//                ", user=" + user +
+//                ", address=" + address +
+//                ", orderItems=" + orderItems +
+//                ", localDate=" + localDate +
+//                '}';
+//    }
+}

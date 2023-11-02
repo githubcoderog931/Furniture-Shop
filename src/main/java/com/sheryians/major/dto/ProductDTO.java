@@ -16,4 +16,6 @@ public class ProductDTO {
     private double weight;
     private String description;
     private String imageName;
+    private	long	unitsInStock;
+
 }

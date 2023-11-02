@@ -1,13 +1,15 @@
 package com.sheryians.major.controller;
 
 
-import com.sheryians.major.domain.Category;
-import com.sheryians.major.domain.Product;
-import com.sheryians.major.domain.User;
+import com.sheryians.major.domain.*;
 import com.sheryians.major.dto.ProductDTO;
+import com.sheryians.major.repository.OrderRepository;
+import com.sheryians.major.repository.ProductImageRepository;
 import com.sheryians.major.service.CategoryService;
+import com.sheryians.major.service.OrderService;
 import com.sheryians.major.service.ProductService;
 import com.sheryians.major.service.UserService;
+import org.hibernate.criterion.Order;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Controller;
@@ -21,11 +23,12 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.Principal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Controller
-
 public class AdminController {
     public static String uploadDir = System.getProperty("user.dir") + "/src/main/resources/static/productImages";
     @Autowired
@@ -35,26 +38,39 @@ public class AdminController {
     @Autowired
     UserService userService;
 
+    @Autowired
+    ProductImageRepository productImageRepository;
 
-    @GetMapping("/admin")
+    @Autowired
+    OrderService orderService;
+    @Autowired
+    OrderRepository orderRepository;
+
+    // show admin page
+    @GetMapping("/admin/home")
     public String adminHome(){
-
         return "adminHome";
     }
 
+
+    // get all the categories
     @GetMapping("/admin/categories")
     public String getCategories(Model model){
         model.addAttribute("categories",categoryService.getAllCategory());
         return "categories";
     }
 
+
+    // get/show add categories page
     @GetMapping("/admin/categories/add")
     public String getCatAdd(Model model){
         model.addAttribute("category",new Category());
         return "categoriesAdd";
     }
 
-    @PostMapping("/admin/categories/add")
+
+    // store new category to database
+    @PostMapping("/category/add")
     public String postCatAdd(@ModelAttribute("category") @Valid Category category, BindingResult result, Model model) {
         if (result.hasErrors()) {
             return "categoriesAdd";
@@ -72,6 +88,7 @@ public class AdminController {
 
 
 
+    // show the category delete page
     @GetMapping("/admin/categories/delete/{id}")
     public String deleteCat(@PathVariable int id, Model model){
         try{
@@ -86,6 +103,9 @@ public class AdminController {
         return "categories";
     }
 
+
+    // show category update page
+
     @RequestMapping("/admin/categories/update/{id}")
     public String updateCat(@PathVariable int id, Model model){
         Optional<Category> category = categoryService.getCategoryById(id);
@@ -97,14 +117,16 @@ public class AdminController {
         }
     }
 
-    //Product section
-    @GetMapping("/admin/products")
+    // show all the products
+    @GetMapping("admin/products")
     public String product(Model model){
         model.addAttribute("products", productService.getAllProduct());
         return "products";
     }
 
-    @GetMapping("/admin/products/add")
+    // show add product page
+
+    @GetMapping("admin/products/add")
     public String productAddGet(Model model){
         model.addAttribute("productDTO", new ProductDTO());
         model.addAttribute("categories", categoryService.getAllCategory());
@@ -112,14 +134,13 @@ public class AdminController {
     }
 
 
-    @PostMapping("/admin/products/add")
+
+    // insert/add a new product to database
+    @PostMapping("/product/add")
     public String productAddPost(@ModelAttribute("productDTO") ProductDTO productDTO,
-                                 @RequestParam("productImage")MultipartFile file,
+                                 @RequestParam("productImage")List<MultipartFile> files,
                                  @RequestParam("imgName")String imgName,
                                  Model model) throws IOException{
-
-
-
 
         String productName = productDTO.getName();
         int productCategory = productDTO.getCategoryId();
@@ -149,28 +170,34 @@ public class AdminController {
 
 
         String imageUUID;
-        if(!file.isEmpty()){
-            imageUUID = file.getOriginalFilename();
-            Path fileNamePath = Paths.get(uploadDir, imageUUID);
-            Files.write(fileNamePath, file.getBytes());
-        }else{
-            imageUUID = imgName;
-        }
+        imageUUID = files.get(0).getOriginalFilename();
+        Path fileNamePath = Paths.get(uploadDir, imageUUID);
+        Files.write(fileNamePath, files.get(0).getBytes());
+
         product.setImageName(imageUUID);
+
+        List<ProductImage> mList = new ArrayList<>();
+
+        for (int i=1; i< files.size();i++) {
+            imageUUID = files.get(i).getOriginalFilename();
+            fileNamePath = Paths.get(uploadDir, imageUUID);
+            Files.write(fileNamePath, files.get(i).getBytes());
+            ProductImage productImage = new ProductImage();
+            productImage.setProduct(product);
+            productImage.setImageUrl(imageUUID);
+            mList.add(productImage);
+        }
+        product.setUnitsInStock(productDTO.getUnitsInStock());
+        product.setImages(mList);
         productService.addProduct(product);
         model.addAttribute("successMessage", "Product added successfully.");
         return "redirect:/admin/products";
 
 
-//        boolean hasErrors = result.hasErrors();
-//        if (hasErrors){
-//            model.addAttribute("productDTO", productDTO);
-//            return "productsAdd";
-//        }
-
-
     }
 
+
+    // show delete product page
     @GetMapping("/admin/product/delete/{id}")
     public String deleteProduct(@PathVariable long id,Model model){
 
@@ -183,13 +210,12 @@ public class AdminController {
 
     @GetMapping("/admin/product/update/{id}")
     public String updateProductGet(@PathVariable long id,Model model){
-        Product product = productService.getProductById(id).get();
+        Product product = productService.getProductById(id);
         ProductDTO productDTO = new ProductDTO();
         productDTO.setId(product.getId());
         productDTO.setName(product.getName());
         productDTO.setCategoryId(product.getCategory().getId());
         productDTO.setPrice(product.getPrice());
-        productDTO.setWeight(product.getWeight());
         productDTO.setDescription(product.getDescription());
         productDTO.setImageName(product.getImageName());
 
@@ -199,34 +225,60 @@ public class AdminController {
         return "productsAdd";
     }
 
-    @GetMapping("/admin/adminManageUsers")
+    @GetMapping("/admin/ManageUsers")
     public String getall(Model model){
         model.addAttribute("allUsers",userService.getAllUsers());
         return "adminUsers";
     }
 
-    @GetMapping("admin/user/block/{id}")
+    @GetMapping("/user/block/{id}")
     public String block(@PathVariable int id){
         User user = userService.findById(id).get();
         user.setEnable(false);
         userService.save(user);
-        return "redirect:/admin/adminManageUsers";
+        return "redirect:/admin/ManageUsers";
 
     }
 
-    @GetMapping("admin/user/unblock/{id}")
+    @GetMapping("/user/unblock/{id}")
     public String unblock(@PathVariable int id){
         User user = userService.findById(id).get();
         user.setEnable(true);
         userService.save(user);
-        return "redirect:/admin/adminManageUsers";
+        return "redirect:/admin/ManageUsers";
 
     }
 
-    @GetMapping("admin/user/remove/{id}")
+    @GetMapping("/user/remove/{id}")
     public String removeUser(@PathVariable int id){
         User user = userService.findById(id).get();
         userService.delete(user);
-        return "redirect:/admin/adminManageUsers";
+        return "redirect:/admin/ManageUsers";
     }
+
+
+    // admin get order details
+
+    @GetMapping("/admin/ManageOrders")
+
+    public String manageOrders(Model model, Principal principal)
+    {
+        User user = userService.getUserByEmail(principal.getName());
+        List<Orders> orders = orderRepository.findAll();
+        model.addAttribute("orders",orders);
+        return "adminOrder";
+    }
+
+
+
+    // order details view page
+
+    @GetMapping("/orderDetails/{id}")
+    public String adminViewOrderPage(@PathVariable("id") Long id,Model model){
+        Orders orders = orderRepository.findById(id).get();
+        model.addAttribute("orders",orders);
+        return "adminViewOrderDetails";
+    }
+
+
 }

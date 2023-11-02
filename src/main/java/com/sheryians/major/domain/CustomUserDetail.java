@@ -64,4 +64,6 @@ public class CustomUserDetail extends User implements UserDetails {
     public boolean isEnabled() {
         return user.getEnable() ;
     }
+
+
 }

@@ -1,13 +1,11 @@
 package com.sheryians.major.service;
 
 import com.sheryians.major.domain.Product;
-import com.sheryians.major.domain.User;
 import com.sheryians.major.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 
 @Service
@@ -26,8 +24,8 @@ public class ProductService {
         productRepository.deleteById(id);
     }
 
-    public Optional<Product> getProductById(long id){
-        return productRepository.findById(id);
+    public Product getProductById(long id){
+        return productRepository.findById(id).orElse(null);
     }
 
     public List<Product> getAllProductsByCategoryId(int id){

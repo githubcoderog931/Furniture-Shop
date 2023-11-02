@@ -40,7 +40,7 @@ public class ShopController {
 
     @GetMapping("/shop/viewproduct/{id}")
     public String viewProduct(Model model, @PathVariable int id){
-        model.addAttribute("product",productService.getProductById(id).get() );
+        model.addAttribute("product",productService.getProductById(id) );
         return "viewProduct";
     }
 
@@ -58,13 +58,13 @@ public class ShopController {
         return "search1";
     }
 
-    @GetMapping("/payment")
-    public String payment(Model model){
-        model.addAttribute("categories",categoryService.getAllCategory());
-        model.addAttribute("products",productService.getAllProduct());
-
-        return "payment";
-    }
+//    @GetMapping("/payment")
+//    public String payment(Model model){
+//        model.addAttribute("categories",categoryService.getAllCategory());
+//        model.addAttribute("products",productService.getAllProduct());
+//
+//        return "payment";
+//    }
 
 
 }
