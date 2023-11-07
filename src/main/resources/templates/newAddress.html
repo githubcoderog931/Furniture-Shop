@@ -78,7 +78,7 @@ color: #3b71ca !important;
                 <!-- Center elements -->
                 <div class="order-lg-last col-lg-5 col-sm-8 col-8">
                     <div class="d-flex float-end">
-
+                        <a href="" class="btn btn-outline-primary me-2" th:href="@{/user}">go back</a>
                         <a href="#" class="me-1 border rounded py-1 px-3 nav-link d-flex align-items-center" target="_blank"> <i class="fas fa-heart m-1 me-md-2"></i><p class="d-none d-md-block mb-0">Wishlist</p> </a>
                         <a class="btn btn-outline-dark mt-auto" th:href="@{/cart}" href="#">Cart
                             <i class="bi-cart-fill me-1"></i>
@@ -124,11 +124,9 @@ color: #3b71ca !important;
 </header>
 
    <div class="container">
-    <h2 class="text-warning">1   Enter a new shipping address</h2>
-    <div class="card mb-5" style="width: 40rem;">
+    <div class="card mb-5 shadow-lg" style="width: 40rem;">
       <div class="card-body">
-        <h3 class="card-title"><b>Add New Address</b></h5>
-        <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+        <h5 class="card-title display-6"><b>Add New Address</b></h5>
         <form th:action="@{/newAddress}" th:object="${address}" method="post">
             
             <input type="hidden" th:field="*{id}">
@@ -164,12 +162,17 @@ color: #3b71ca !important;
                     <p class="mb-0">Pin code</p>
                     <div class="form-outline">
                         <input type="number" style="width: 30rem;" id="zipCode" class="form-control shadow-lg" th:field="*{zipCode}" />
+                        <div th:if="${#fields.hasErrors('zipCode')}" class="text-danger">
+                            <span th:errors="*{zipCode}"></span>
+                        </div>
                     </div>
+                    
                 </div>
             </div>
             
             <button type="submit" class="btn btn-primary">Submit</button>
         </form>
+        
         
 
         

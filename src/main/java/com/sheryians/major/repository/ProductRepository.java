@@ -1,6 +1,7 @@
 package com.sheryians.major.repository;
 
 import com.sheryians.major.domain.Product;
+import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -20,5 +21,7 @@ public interface ProductRepository extends JpaRepository<Product,Long> {
     List<Product> getProductByCategory(int id);
 
     Optional<Product> findById(Long Id);
+
+    List<Product> findByDescriptionContainingIgnoreCase(String name);
 
 }

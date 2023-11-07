@@ -42,13 +42,12 @@ public class OrderItemService {
             orderItem.setOrders(orders);
             orderItem.setProduct(cartItem.getProduct());
             orderItems.add(orderItem);
+            long stock = cartItem.getProduct().getUnitsInStock();
+            long quantity = cartItem.getQuantity();
+            cartItem.getProduct().setUnitsInStock(stock-quantity);
         }
-
-
         List<OrderItem> savedOrderItems = orderItemRepository.saveAll(orderItems);
-
         cartItemRepository.deleteAll(cartItems);
-
         return savedOrderItems;
     }
 }

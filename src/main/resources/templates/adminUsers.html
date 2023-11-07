@@ -42,7 +42,8 @@
         <thead class="thead-light">
         <tr>
             <th scope="col">SN</th>
-            <th scope="col">User Name</th>
+            <th scope="col">firstname</th>
+            <th scope="col">email</th>
             <th scope="col">Action</th>
             <th scope="col">Remove User</th>
 
@@ -55,9 +56,8 @@
 
         <tr th:each="users, iStat : ${allUsers}">
             <th scope="row" th:text="${iStat.index + 1}">1</th>
-            <td th:text="${users.firstname} + ${users.lastname}" >Larry</td>
-
-
+            <td th:text=" ${users.lastname}" >Larry</td>
+            <td th:text="${users.email}"></td>
             <td><a th:href="@{/user/block/{id}(id=${users.id})}" th:if="${users.getEnable()==true}"  class="btn btn-outline-warning mt-auto">Block</a>
             <a th:href="@{/user/unblock/{id}(id=${users.id})}" th:if="${users.getEnable()==false}" class="btn btn-outline-success mt-auto">UnBlock</a></td>
             <td><a th:href="@{/user/remove/{id}(id=${users.id})}"  class="btn btn-outline-danger mt-auto">Remove</a></td>

@@ -67,7 +67,7 @@
                 <!-- Center elements -->
                 <div class="order-lg-last col-lg-5 col-sm-8 col-8">
                     <div class="d-flex float-end">
-
+                        <a href="" class="btn btn-outline-primary me-2" th:href="@{/user}">go back</a>
                         <a href="#" class="me-1 border rounded py-1 px-3 nav-link d-flex align-items-center" target="_blank"> <i class="fas fa-heart m-1 me-md-2"></i><p class="d-none d-md-block mb-0">Wishlist</p> </a>
                         <a class="btn btn-outline-dark mt-auto" th:href="@{/cart}" href="#">Cart
                             <i class="bi-cart-fill me-1"></i>
@@ -99,7 +99,7 @@
     <!-- Heading -->
     <!-- Heading -->
 </header>
-<div class="container">
+<div class="container-fluid">
         <div class="row">
             <!-- Iterate over the list of items and create Bootstrap cards -->
             <div class="header">
@@ -112,18 +112,21 @@
             <div class="container mt-5">
                 <div class="row">
                     <div class=" col-md-6" th:each="address : ${address}">
-                        <div class="card order-card">
-                            <div class="card-header">
+                        <div class="card order-card ms-4">
+                            <div class="card-header shadow-lg">
                               Address id : <span th:text="${address.id}"></span>
                             </div>
-                            <div class="card-body">
+                            <div class="card-body ms-3">
                                 <h5 class="card-title"><span th:text="${address.userName}"></span></h5>
                                 <p class="card-text ">street : <span th:text="${address.street}"></span> </p>
                                 <p class="card-text ">city : <span th:text="${address.city}"></span> </p>
+                                <p class="card-text ">default : <span th:text="${address.isDefault}"></span> </p>
                                 <p class="card-text ">zipCode : <span th:text="${address.zipCode}"></span> </p>
                                 <p class="card-text ">state : <span th:text="${address.state}"></span></p>
                                 <a th:href="@{/deleteAddress/{id}(id=${address.id})}">Remove Address</a>
                                 <a th:href="@{/updateAddress/{id}(id=${address.id})}">Update Address</a>
+                                <a th:href="@{/setDefault/{id}(id=${address.id})}"> Make Default</a>
+                                
                             </div>
                         </div>
                     </div>

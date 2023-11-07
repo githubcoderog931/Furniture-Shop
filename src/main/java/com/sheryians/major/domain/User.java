@@ -2,6 +2,7 @@ package com.sheryians.major.domain;
 
 import lombok.Data;
 import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
@@ -10,7 +11,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
-@Data
+@Getter
+@Setter
 @Table(name = "users")
 public class User {
 
@@ -20,8 +22,7 @@ public class User {
     @Column(name = "id")
     private Integer id;
 
-    @Column(name = "first_name",nullable = false)
-    @NotEmpty(message = "{First name must not be empty}")
+    @Column(name = "first_name")
     private String firstname;
 
     @Column(name = "last_name")
@@ -46,7 +47,7 @@ public class User {
     @Column(name = "user_enabled")
     private Boolean enable;
 
-    @OneToOne(mappedBy = "user")
+    @OneToOne(mappedBy = "user",fetch = FetchType.EAGER)
     private Cart cart;
 
     @OneToMany(mappedBy = "user")
@@ -69,89 +70,23 @@ public class User {
 
     }
 
-    public User(User user) {
-        this.firstname = user.getFirstname();
-        this.lastname = user.getLastname();
-        this.email = user.getEmail();
-        this.password = user.getPassword();
-        this.roles = user.getRoles();
-        this.enable = user.getEnable();
-        this.cart = user.getCart();
-        this.addresses = user.getAddresses();
-        this.cartItem = (List<CartItem>) user.getCartItem();
-
-    }
+//    public User(User user) {
+//        this.firstname = user.getFirstname();
+//        this.lastname = user.getLastname();
+//        this.email = user.getEmail();
+//        this.password = user.getPassword();
+//        this.roles = user.getRoles();
+//        this.enable = user.getEnable();
+//        this.cart = user.getCart();
+//        this.addresses = user.getAddresses();
+//        this.cartItem = (List<CartItem>) user.getCartItem();
+//
+//    }
 
 
     // define getters/setters
 
-    public Integer getId() {
-        return id;
-    }
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public String getFirstname() {
-        return firstname;
-    }
-
-    public void setFirstname(String firstname) {
-        this.firstname = firstname;
-    }
-
-    public String getLastname() {
-        return lastname;
-    }
-
-    public void setLastname(String lastname) {
-        this.lastname = lastname;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public List<Role> getRoles() {
-        return roles;
-    }
-
-    public void setRoles(List<Role> roles) {
-        this.roles = roles;
-    }
-
-    public Boolean getEnable() {
-        return enable;
-    }
-
-    public void setEnable(Boolean enable) {
-        this.enable = enable;
-    }
-
-    public Cart getCart() {
-        return cart;
-    }
-
-    public void setCart(Cart cart) {
-        this.cart = cart;
-    }
-
-    public List<Address> getAddresses() {
-        return addresses;
-    }
 
     public void setAddresses(List<Address> addresses) {
         this.addresses = addresses;
@@ -161,9 +96,7 @@ public class User {
         return (CartItem) cartItem;
     }
 
-    public void setCartItem(CartItem cartItem) {
-        this.cartItem = (List<CartItem>) cartItem;
-    }
+
 
     // define toString
 

@@ -11,8 +11,11 @@
     <nav class="navbar navbar-dark bg-primary">
         <div class="container">
             <a class="navbar-brand" href="#">User Profile</a>
+            <a href="" class="btn btn-light" th:href="@{/user}">go back</a>
+
         </div>
     </nav>
+
 
     <!-- Content -->
     <div class="container mt-4">
@@ -70,7 +73,7 @@
                           <div class="card-body">
                               <h5 class="card-title">Change Password</h5>
                               <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
-                              <a href="#" class="btn btn-primary">set a new one</a>
+                              <a th:href="@{/setNewPassword}" class="btn btn-primary">set a new one</a>
                           </div>
                       </div>
                   </div>
@@ -81,7 +84,7 @@
 
     <!-- Footer -->
     <footer class="bg-dark text-light text-center py-3">
-        &copy; 2023 YourWebsite.com
+        &copy; 2023 Website.com
     </footer>
 
     <!-- Bootstrap JS and jQuery -->

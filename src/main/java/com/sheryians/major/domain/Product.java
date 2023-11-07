@@ -2,6 +2,7 @@ package com.sheryians.major.domain;
 import lombok.Data;
 
 import javax.persistence.*;
+import javax.validation.constraints.Min;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,6 +35,7 @@ public	class	Product	{
     private String imageName;
 
     @Column(name = "units_in_stock")
+    @Min(value = 0, message = "Units in stock cannot be negative")
     private	long	unitsInStock;
 
     public List<ProductImage> getImages() {

@@ -2,8 +2,7 @@ package com.sheryians.major.domain;
 
 
 import javax.persistence.*;
-
-
+import javax.validation.constraints.Size;
 
 
 @Entity
@@ -33,6 +32,7 @@ public class Address {
     private String city;
 
     @Column(name = "zip_code")
+    @Size(max = 6, message = "Pin code should be at most 6 characters")
     private String zipCode;
 
     @Column(name = "state")
@@ -120,25 +120,25 @@ public class Address {
         return isDefault;
     }
 
-    public void setDefault(boolean aDefault) {
-        isDefault = aDefault;
+    public void setDefault(boolean isDefault) {
+        this.isDefault = isDefault;
     }
 
 
     // define toString
 
 
-    @Override
-    public String toString() {
-        return "Address{" +
-                "id=" + id +
-                ", user=" + user +
-                ", userName='" + userName + '\'' +
-                ", street='" + street + '\'' +
-                ", city='" + city + '\'' +
-                ", zipCode='" + zipCode + '\'' +
-                ", state='" + state + '\'' +
-                ", isDefault=" + isDefault +
-                '}';
-    }
+//    @Override
+//    public String toString() {
+//        return "Address{" +
+//                "id=" + id +
+//                ", user=" + user +
+//                ", userName='" + userName + '\'' +
+//                ", street='" + street + '\'' +
+//                ", city='" + city + '\'' +
+//                ", zipCode='" + zipCode + '\'' +
+//                ", state='" + state + '\'' +
+//                ", isDefault=" + isDefault +
+//                '}';
+//    }
 }

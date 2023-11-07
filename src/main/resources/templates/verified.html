@@ -3,8 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+    </style>
 </head>
 <body>
-    otp verified
+    <!-- Display the loading GIF -->
+    <h1 class="display">OTP Verified</h1>
+    <script>
+        // Use setTimeout to wait for 3 seconds (3000 milliseconds)
+        setTimeout(function() {
+            // Redirect to the desired page
+            window.location.href = '/login'; // Change this to the URL of the page you want to redirect to
+        }, 3000);
+    </script>
 </body>
 </html>

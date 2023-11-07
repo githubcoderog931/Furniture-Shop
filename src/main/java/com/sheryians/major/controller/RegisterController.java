@@ -100,9 +100,11 @@ public class RegisterController {
         } catch (MessagingException e) {
             throw new RuntimeException("Unable to send otp please try again");
         }
+
         user.setOtp(otp);
         user.setOtpGeneratedTime(LocalDateTime.now());
         userRepository.save(user);
+        model.addAttribute("email",user.getEmail());
         return "sendOtpRegistered";
 
 
@@ -117,12 +119,10 @@ public class RegisterController {
 
     }
     @PostMapping("/verifyOtp")
-    public String verify(@ModelAttribute("email") String email, @ModelAttribute("otp") String otp,
-                         Model model){
+    public String verify(@RequestParam("email") String email, @RequestParam("otp") String otp,Model model){
 
         User user = userService.getUserByEmail(email);
-        System.out.println(email);
-        System.out.println(otp);
+
         String savedOtp = user.getOtp();
         if (savedOtp.equals(otp)) {
             user.setVerified(true);
@@ -133,6 +133,39 @@ public class RegisterController {
             model.addAttribute("wrong", "Wrong OTP Pin.");
             return "sendOtpRegistered";
         }
+    }
+
+    @PostMapping("/verifyOtpForgotPassword")
+    public String verifyOtpForgotPassword(@RequestParam("email") String email, @RequestParam("otp") String otp,Model model){
+
+        User user = userService.getUserByEmail(email);
+
+        String savedOtp = user.getOtp();
+        if (savedOtp.equals(otp)) {
+            return "newPassword";
+        } else {
+            model.addAttribute("email", user.getEmail());
+            model.addAttribute("wrong", "Wrong OTP Pin.");
+            return "enterOtp";
+        }
+    }
+
+
+    @GetMapping("/sendOtpForgotPassword")
+    public String sendOtpForgotPassword(@ModelAttribute("email") String email, Model model) {
+        String otp = otpUtil.generateOtp();
+        try {
+            emailUtil.sendOtpEmail(email, otp);
+        } catch (MessagingException e) {
+            throw new RuntimeException("Unable to send otp please try again");
+        }
+        User user = userService.getUserByEmail(email);
+
+        user.setOtp(otp);
+        user.setOtpGeneratedTime(LocalDateTime.now());
+        userRepository.save(user);
+        model.addAttribute("email");
+        return "enterOtp";
     }
 
 

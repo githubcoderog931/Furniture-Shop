@@ -64,12 +64,12 @@ public class Category {
 
     // define toString
 
-    @Override
-    public String toString() {
-        return "Category{" +
-                "id=" + id +
-                ", category='" + name + '\'' +
-                ", description='" + description + '\'' +
-                '}';
-    }
+//    @Override
+//    public String toString() {
+//        return "Category{" +
+//                "id=" + id +
+//                ", category='" + name + '\'' +
+//                ", description='" + description + '\'' +
+//                '}';
+//    }
 }

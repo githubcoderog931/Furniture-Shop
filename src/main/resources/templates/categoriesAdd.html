@@ -48,16 +48,16 @@
 <div class="container">
     <div class="row">
         <div class="col-sm-4">
-            <form th:action="@{/category/add}" method="post" th:object="${category}">
-                <input type="hidden" name="id"  th:field="*{id}">
+            <form th:action="@{/category/add}" method="post">
+                <input type="hidden" name="id"  >
                 <div class="form-group">
                     <label for="name">Name</label>
-                    <input type="text" class="form-control" required th:field="*{name}" name="name" id="name"  placeholder="Enter name">
+                    <input type="text" class="form-control" required  name="name" id="name"  placeholder="Enter name">
                     <p th:if="${categoryError}" class="error" th:text="${categoryError}"></p>
 
                     <div class="form-group">
                         <label for="description">Category Description</label>
-                        <textarea class="form-control" required rows="5" th:field="*{description}" name="description" id="description"></textarea>
+                        <textarea class="form-control" required rows="5"  name="description" id="description"></textarea>
                     </div>
 
                 </div>

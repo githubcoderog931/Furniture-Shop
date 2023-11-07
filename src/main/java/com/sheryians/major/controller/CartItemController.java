@@ -17,8 +17,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.security.Principal;
+import java.util.List;
 
 @Controller
 public class CartItemController {
@@ -32,6 +36,14 @@ public class CartItemController {
 
     @Autowired
     CartItemRepository cartItemRepository;
+
+    @Autowired
+    UserRepository userRepository;
+
+
+    @Autowired
+    CartRepository cartRepository;
+
 
 
 
@@ -61,43 +73,35 @@ public class CartItemController {
 
 
     @GetMapping("/addQuantity/{id}")
-    public String addOneTwoQuantity(@PathVariable Long id, Principal principal, Model model){
-        String username = principal.getName();
-        Product product = productService.getProductById(id);
-        CartItem cartItem = cartItemRepository.findByProduct(product);
-        System.out.println(product);
-        System.out.println(cartItem);
-
-        // accessing units in stock
-        long stock = product.getUnitsInStock();
-        long quantity = cartItem.getQuantity();
-        if(quantity<stock){
-            quantity = quantity+1;
-            stock =  stock-1;
+    public String addOneTwoQuantity(@PathVariable Long id, Principal principal, Model model, RedirectAttributes redidAttrs) {
+        CartItem cartItem = cartItemRepository.findById(id).orElse(null);
+        long quantity = 0;
+        assert cartItem != null;
+        Product product = cartItem.getProduct();
+        if(cartItem.getQuantity()>= product.getUnitsInStock()){
+            redidAttrs.addFlashAttribute("outOfStock","OOps!.. "+product.getName()+" has Only " + product.getUnitsInStock() + " piece in stock");
+                return "redirect:/cart";
+        }else {
+            cartItem.setQuantity(cartItem.getQuantity()+1);
+            cartItemRepository.save(cartItem);
         }
-        System.out.println(stock);
-        System.out.println(quantity);
-        model.addAttribute("quantity",quantity);
-        model.addAttribute("stock",stock);
         return "redirect:/cart";
     }
 
 
 
-    @GetMapping("/minusQuantity/{productId}")
-    public String minusQuantity(@PathVariable Long productId, Principal principal,Model model) {
-        String username = principal.getName();
-
-        CartItem cartItem = cartItemRepository.findById(productId).get();
-        int quantity = 0;
-        if (cartItem.getQuantity() >= 1) {
-            quantity = cartItem.getQuantity() - 1;
-        }else{
-            System.out.println("it goes below zero");
+    @GetMapping("/minusQuantity/{id}")
+    public String minusQuantity(@PathVariable Long id, Principal principal, Model model, RedirectAttributes redidAttrs) {
+        if(id!=null){
+            CartItem cartItem = cartItemRepository.findById(id).orElse(null);
+            assert cartItem != null;
+            Product product = cartItem.getProduct();
+            int quantity = cartItem.getQuantity();
+            if (quantity>1){
+                cartItem.setQuantity(quantity-1);
+                cartItemRepository.save(cartItem);
+            }
         }
-        cartItem.setQuantity(quantity);
-        cartItemService.saveCartItem(cartItem);
-        model.addAttribute("quantity", quantity);
         return "redirect:/cart";
     }
 }

@@ -5,6 +5,7 @@ import javax.persistence.*;
 import com.sheryians.major.domain.Address;
 import com.sheryians.major.domain.OrderItem;
 import com.sheryians.major.domain.User;
+import com.sheryians.major.repository.OrderStatusRepository;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
@@ -14,8 +15,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 
-
 @Entity
+@Data
 @Table(name = "orders")
 public class Orders {
 
@@ -44,18 +45,22 @@ public class Orders {
     @Column(name = "order_placed_date")
     private LocalDate localDate;
 
+    @ManyToOne
+    private OrderStatus orderStatus;
+
 
     // define constructors
 
-    public Orders(){
+    public Orders() {
 
     }
 
-    public Orders(int amount, User user, Address address, List<OrderItem> orderItems, LocalDate localDate) {
+    public Orders(int amount, User user, Address address, List<OrderItem> orderItems, LocalDate localDate, OrderStatus orderStatus) {
         this.amount = amount;
         this.user = user;
         this.address = address;
         this.orderItems = orderItems;
+        this.orderStatus = orderStatus;
         this.localDate = localDate;
     }
 

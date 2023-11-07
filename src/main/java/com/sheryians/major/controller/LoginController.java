@@ -59,14 +59,10 @@ public class LoginController {
         return "login";
     }
 
-
-
-
-//    @GetMapping("/register")
-//    public String showRegistrationForm(Model model) {
-//        model.addAttribute("user", new User()); // Initialize a new User object
-//        return "register"; // Return the view name
-//    }
+    @GetMapping("/forgotpassword")
+    public String forgotPassword() {
+        return "forgotPassword";
+    }
 
 
 

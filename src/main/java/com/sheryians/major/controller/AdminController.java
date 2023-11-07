@@ -3,8 +3,10 @@ package com.sheryians.major.controller;
 
 import com.sheryians.major.domain.*;
 import com.sheryians.major.dto.ProductDTO;
+import com.sheryians.major.repository.CategoryRepository;
 import com.sheryians.major.repository.OrderRepository;
 import com.sheryians.major.repository.ProductImageRepository;
+import com.sheryians.major.repository.ProductRepository;
 import com.sheryians.major.service.CategoryService;
 import com.sheryians.major.service.OrderService;
 import com.sheryians.major.service.ProductService;
@@ -39,6 +41,9 @@ public class AdminController {
     UserService userService;
 
     @Autowired
+    ProductRepository productRepository;
+
+    @Autowired
     ProductImageRepository productImageRepository;
 
     @Autowired
@@ -46,37 +51,38 @@ public class AdminController {
     @Autowired
     OrderRepository orderRepository;
 
+    @Autowired
+    CategoryRepository categoryRepository;
+
     // show admin page
     @GetMapping("/admin/home")
-    public String adminHome(){
+    public String adminHome() {
         return "adminHome";
     }
 
 
     // get all the categories
     @GetMapping("/admin/categories")
-    public String getCategories(Model model){
-        model.addAttribute("categories",categoryService.getAllCategory());
+    public String getCategories(Model model) {
+        model.addAttribute("categories", categoryService.getAllCategory());
         return "categories";
     }
 
 
     // get/show add categories page
     @GetMapping("/admin/categories/add")
-    public String getCatAdd(Model model){
-        model.addAttribute("category",new Category());
+    public String getCatAdd(Model model) {
         return "categoriesAdd";
     }
 
 
     // store new category to database
     @PostMapping("/category/add")
-    public String postCatAdd(@ModelAttribute("category") @Valid Category category, BindingResult result, Model model) {
-        if (result.hasErrors()) {
-            return "categoriesAdd";
-        }
-
+    public String postCatAdd(@RequestParam("name") String name,@RequestParam("description") String description, Model model) {
+        Category category = new Category();
         try {
+            category.setName(name);
+            category.setDescription(description);
             categoryService.saveCategory(category);
             model.addAttribute("successMessage", "Category added successfully.");
             return "redirect:/admin/categories";
@@ -87,19 +93,18 @@ public class AdminController {
     }
 
 
-
     // show the category delete page
     @GetMapping("/admin/categories/delete/{id}")
-    public String deleteCat(@PathVariable int id, Model model){
-        try{
+    public String deleteCat(@PathVariable int id, Model model) {
+        try {
             categoryService.removeCategoryById(id);
 
-        }catch (DataIntegrityViolationException e){
-            model.addAttribute("categories",categoryService.getAllCategory());
-            model.addAttribute("errorCat","There are products under this category!!");
+        } catch (DataIntegrityViolationException e) {
+            model.addAttribute("categories", categoryService.getAllCategory());
+            model.addAttribute("errorCat", "There are products under this category!!");
         }
-        model.addAttribute("successCat","There were no products under this category!!");
-        model.addAttribute("categories",categoryService.getAllCategory());
+        model.addAttribute("successCat", "There were no products under this category!!");
+        model.addAttribute("categories", categoryService.getAllCategory());
         return "categories";
     }
 
@@ -107,19 +112,19 @@ public class AdminController {
     // show category update page
 
     @RequestMapping("/admin/categories/update/{id}")
-    public String updateCat(@PathVariable int id, Model model){
+    public String updateCat(@PathVariable int id, Model model) {
         Optional<Category> category = categoryService.getCategoryById(id);
-        if (category.isPresent()){
-            model.addAttribute("category",category.get());
+        if (category.isPresent()) {
+            model.addAttribute("category", category.get());
             return "categoriesAdd";
-        }else{
+        } else {
             return "404";
         }
     }
 
     // show all the products
     @GetMapping("admin/products")
-    public String product(Model model){
+    public String product(Model model) {
         model.addAttribute("products", productService.getAllProduct());
         return "products";
     }
@@ -127,33 +132,32 @@ public class AdminController {
     // show add product page
 
     @GetMapping("admin/products/add")
-    public String productAddGet(Model model){
+    public String productAddGet(Model model) {
         model.addAttribute("productDTO", new ProductDTO());
         model.addAttribute("categories", categoryService.getAllCategory());
         return "productsAdd";
     }
 
 
-
     // insert/add a new product to database
     @PostMapping("/product/add")
     public String productAddPost(@ModelAttribute("productDTO") ProductDTO productDTO,
-                                 @RequestParam("productImage")List<MultipartFile> files,
-                                 @RequestParam("imgName")String imgName,
-                                 Model model) throws IOException{
+                                 @RequestParam("productImage") List<MultipartFile> files,
+                                 @RequestParam("imgName") String imgName,
+                                 Model model) throws IOException {
 
         String productName = productDTO.getName();
         int productCategory = productDTO.getCategoryId();
         List<Product> existingProducts = productService.findProductByName(productName);
 
-        if (!existingProducts.isEmpty()){
+        if (!existingProducts.isEmpty()) {
 
-            for(Product existingProduct : existingProducts){
-                if (existingProduct.getCategory().getId() == productCategory){
-                        model.addAttribute("productExistsMessage", "A product with the same name already exists.");
-                        model.addAttribute("categories", categoryService.getAllCategory());
+            for (Product existingProduct : existingProducts) {
+                if (existingProduct.getCategory().getId() == productCategory) {
+                    model.addAttribute("productExistsMessage", "A product with the same name already exists.");
+                    model.addAttribute("categories", categoryService.getAllCategory());
 
-                        return "productsAdd";
+                    return "productsAdd";
                 }
             }
 
@@ -168,7 +172,6 @@ public class AdminController {
         product.setDescription(productDTO.getDescription());
 
 
-
         String imageUUID;
         imageUUID = files.get(0).getOriginalFilename();
         Path fileNamePath = Paths.get(uploadDir, imageUUID);
@@ -178,7 +181,7 @@ public class AdminController {
 
         List<ProductImage> mList = new ArrayList<>();
 
-        for (int i=1; i< files.size();i++) {
+        for (int i = 1; i < files.size(); i++) {
             imageUUID = files.get(i).getOriginalFilename();
             fileNamePath = Paths.get(uploadDir, imageUUID);
             Files.write(fileNamePath, files.get(i).getBytes());
@@ -199,40 +202,57 @@ public class AdminController {
 
     // show delete product page
     @GetMapping("/admin/product/delete/{id}")
-    public String deleteProduct(@PathVariable long id,Model model){
+    public String deleteProduct(@PathVariable long id, Model model) {
 
-        model.addAttribute("successPro","Product Removed!!");
+        model.addAttribute("successPro", "Product Removed!!");
         productService.removeProductById(id);
         return "redirect:/admin/products";
     }
 
 
 
+
+
+
+
     @GetMapping("/admin/product/update/{id}")
-    public String updateProductGet(@PathVariable long id,Model model){
-        Product product = productService.getProductById(id);
-        ProductDTO productDTO = new ProductDTO();
-        productDTO.setId(product.getId());
-        productDTO.setName(product.getName());
-        productDTO.setCategoryId(product.getCategory().getId());
-        productDTO.setPrice(product.getPrice());
-        productDTO.setDescription(product.getDescription());
-        productDTO.setImageName(product.getImageName());
-
-        model.addAttribute("categories",categoryService.getAllCategory());
-        model.addAttribute("productDTO",productDTO);
-
-        return "productsAdd";
+    public String updateProductGet(@PathVariable long id, Model model) {
+        Product product = productRepository.findById(id).orElse(null);
+        model.addAttribute("product",product);
+        model.addAttribute("categories",categoryRepository.findAll());
+        return "productUpdate";
     }
 
+
+    @PostMapping("/product/update")
+    public String productUpdate(@RequestParam("name") String name,
+                                @RequestParam("category") Category category,
+                                @RequestParam("price") double price,
+                                @RequestParam("stock") long stock,
+                                @RequestParam("description")String description,
+                                @RequestParam("id")long id){
+        Product product = productRepository.findById(id).orElse(null);
+        assert product != null;
+        product.setName(name);
+        product.setCategory(category);
+        product.setPrice(price);
+        product.setUnitsInStock(stock);
+        product.setDescription(description);
+        productRepository.save(product);
+        return "redirect:/admin/products";
+    }
+
+
+
+
     @GetMapping("/admin/ManageUsers")
-    public String getall(Model model){
-        model.addAttribute("allUsers",userService.getAllUsers());
+    public String getall(Model model) {
+        model.addAttribute("allUsers", userService.getAllUsers());
         return "adminUsers";
     }
 
     @GetMapping("/user/block/{id}")
-    public String block(@PathVariable int id){
+    public String block(@PathVariable int id) {
         User user = userService.findById(id).get();
         user.setEnable(false);
         userService.save(user);
@@ -241,7 +261,7 @@ public class AdminController {
     }
 
     @GetMapping("/user/unblock/{id}")
-    public String unblock(@PathVariable int id){
+    public String unblock(@PathVariable int id) {
         User user = userService.findById(id).get();
         user.setEnable(true);
         userService.save(user);
@@ -250,7 +270,7 @@ public class AdminController {
     }
 
     @GetMapping("/user/remove/{id}")
-    public String removeUser(@PathVariable int id){
+    public String removeUser(@PathVariable int id) {
         User user = userService.findById(id).get();
         userService.delete(user);
         return "redirect:/admin/ManageUsers";
@@ -259,26 +279,89 @@ public class AdminController {
 
     // admin get order details
 
-    @GetMapping("/admin/ManageOrders")
-
-    public String manageOrders(Model model, Principal principal)
-    {
-        User user = userService.getUserByEmail(principal.getName());
-        List<Orders> orders = orderRepository.findAll();
-        model.addAttribute("orders",orders);
-        return "adminOrder";
-    }
-
+//    @GetMapping("/admin/ManageOrders")
+//
+//    public String manageOrders(Model model, Principal principal) {
+//        User user = userService.getUserByEmail(principal.getName());
+//        List<Orders> orders = orderRepository.findAll();
+//        model.addAttribute("orders", orders);
+//        return "adminOrder";
+//    }
 
 
     // order details view page
 
     @GetMapping("/orderDetails/{id}")
-    public String adminViewOrderPage(@PathVariable("id") Long id,Model model){
+    public String adminViewOrderPage(@PathVariable("id") Long id, Model model) {
         Orders orders = orderRepository.findById(id).get();
-        model.addAttribute("orders",orders);
+        model.addAttribute("orders", orders);
         return "adminViewOrderDetails";
     }
+
+
+    // view stocks page
+
+    @GetMapping("/admin/manageStocks")
+    public String viewStocksPage( Model model){
+        model.addAttribute("products", productService.getAllProduct());
+        return "adminStock";
+    }
+
+
+    // admin add stock
+
+    @GetMapping("/addStock/{id}")
+    public String adminAddStock(@PathVariable("id") Long id){
+        Product product = productService.getProductById(id);
+        System.out.println(product);
+        long stock = product.getUnitsInStock();
+        product.setUnitsInStock(stock+1);
+        productRepository.save(product);
+        return "redirect:/admin/manageStocks";
+    }
+
+
+    @GetMapping("/minusStock/{id}")
+    public String adminMinusStock(@PathVariable("id") Long id){
+        Product product = productService.getProductById(id);
+        System.out.println(product);
+        long stock = product.getUnitsInStock();
+        product.setUnitsInStock(stock-1);
+        productRepository.save(product);
+
+        return "redirect:/admin/manageStocks";
+    }
+
+
+    // update stocks page
+
+    @GetMapping("/updateStock/{id}")
+    public String updateStocks(@PathVariable("id") Long id, Model model){
+        Product product = productRepository.findById(id).orElse(null);
+
+        model.addAttribute("product",product);
+        model.addAttribute("productId",id);
+        return "updateStock";
+    }
+
+    // post or receive update
+
+    @PostMapping("/updateStock")
+    public String postUpdateStocks(@RequestParam("newStock") long newStock,@RequestParam("productId") long id,Model model){
+        Product product = productRepository.findById(id).orElse(null);
+        if(newStock>=0){
+            assert product != null;
+            product.setUnitsInStock(newStock);
+            productRepository.save(product);
+            return "redirect:/admin/manageStocks";
+        }
+        model.addAttribute("stockError", "Stock cannot go below zero");
+        model.addAttribute("product",product);
+        return "redirect:/updateStock/"+product.getId();
+
+
+    }
+
 
 
 }

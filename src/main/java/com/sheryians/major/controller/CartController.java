@@ -15,6 +15,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
@@ -55,7 +56,7 @@ public class CartController {
             }
 
             // Redirect to a page, e.g., product details or cart view
-            return "redirect:/";
+            return "redirect:/shop";
         }
 
 
@@ -91,8 +92,9 @@ public class CartController {
 
 
         @GetMapping("delete/{productId}")
-    String deleteCartItems(@PathVariable Long productId){
+    String deleteCartItems(@PathVariable Long productId, RedirectAttributes redidAttrs){
             cartItemService.deleteCartItemById(productId);
+            redidAttrs.addFlashAttribute("delete","item deleted successfully");
             return "redirect:/cart";
 
         }
