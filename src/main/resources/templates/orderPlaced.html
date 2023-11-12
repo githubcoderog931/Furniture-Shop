@@ -5,6 +5,8 @@
     <meta charset="UTF-8">
     <title>Title</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+
     <style>
         /* Your custom CSS styles here */
         .dropdown {
@@ -37,6 +39,66 @@
     background-color: #e9ff42; /* Light green background color */
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Light green shadow */
     }
+    .main{
+        background-color: #3498db;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+    }
+
+    /* Style the container */
+    .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        /* Style the button */
+        .dropdown .button {
+            background-color: #3498db;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        /* Style the dropdown content (hidden by default) */
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #3498db;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+            border-radius: 6px;
+        }
+
+        /* Style the dropdown items */
+        .dropdown-content .button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            text-align: left;
+            border: none;
+            background-color: inherit;
+            cursor: pointer;
+        }
+
+        /* Change color on hover */
+        .dropdown-content .button:hover {
+            background-color: #FAF9F6;
+            color: #3498db;
+        }
+
+        /* Show the dropdown menu on hover */
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+        a{
+            text-decoration: none;
+
+        }
 
     </style>
 </head>
@@ -111,7 +173,12 @@
 
 <section class="bg-light py-5 mb-4 border-2">
     <div class="container">
-        <form action="submitOrder" method="post">
+        <p th:if="${noMoney}" th:text="${noMoney}" class="alert alert-danger" role="alert"></p>
+        <p th:if="${badCoupon}" th:text="${badCoupon}" class="alert alert-danger" role="alert"></p>
+        <p th:if="${goodCoupon}" th:text="${goodCoupon}" class="alert alert-success" role="alert"></p>
+
+
+        <form id="paymentForm" action="/user/submitOrder" method="post">
         <div class="row">
             <div class="col-lg-8">
                 <div class="card mb-4 border shadow">
@@ -121,7 +188,7 @@
                         
                         <div class="form-group">
                             <!-- Add the Bootstrap "form-control" class to the select element for styling -->
-                            <select name="selectedAddress" class="form-control">
+                            <select id="selectedAddress" name="selectedAddress" class="form-control">
                                 <!-- Add an empty option to serve as a placeholder -->
                                 <option th:if="${default}" th:value="${default.id}">
                                     <!-- Use Bootstrap classes for better formatting -->
@@ -153,14 +220,17 @@
                         <a th:href="@{/newAddress}">+ Add new address</a>
                     </div>
                 </div>
-
+                <input type="hidden" id="selectedAddressId" name="selectedAddressId" />
                 <div class="card mb-4 border shadow-lg ">
                     <div class="p-4">
                         <h5><b>2. Payment Method</b></h5>
                         <!-- Content for payment method here -->
-                        <div class="card mb-4 border shadow-lg custom-card">
-                            <div class="p-4">
-                                <p class="mb-0 text-wrap ">Pay on Delivery (Cash/Card)</p>
+                        <div class="dropdown">
+                            <button class="main">Select Payment Method</button>
+                            <div class="dropdown-content">
+                                <button type="button" class="button" name="payOnDelivery" onclick="success()">Pay on Delivery</button>
+                                <button type="button"class="button"  name="razorpay" onclick="createOrderAndOpenCheckout()">Razorpay</button>
+                                <a th:href="@{'/payWallet?selectedAddress='}" name="wallet" id="walletLink" class="button a" onclick="setSelectedAddress()">Wallet</a>
                             </div>
                         </div>
                 
@@ -187,9 +257,11 @@
                         </div>
                     </div>
                 </div>
-                <button type="button" class="mt-3 btn btn-warning text-dark" th:onclick="'CreateOrderID(' + ${total} + ')'">Place your order</button>
+                <!-- <button type="button" class="mt-3 btn btn-warning text-dark" onclick="createOrderAndOpenCheckout()">Place your order</button> -->
 
             </div>
+        </form>
+
 
             <div class="col-lg-4">
                 <div class="card mb-4 border shadow">
@@ -198,26 +270,30 @@
                         <!-- Content for summary, total price, discount, and shipping cost -->
                         <div class="d-flex justify-content-between">
                             <p class="mb-2">Total price:</p>
-                            <p class="mb-2"><span>₹<span th:text="${total}">2</span></span></p>
+                            <p class="mb-2"><span>₹<span id="amount" th:text="${total}">2</span></span></p>
                         </div>
                         <div class="d-flex justify-content-between">
                             <!-- <p class="mb-2">Discount:</p>
                             <p class="mb-2 text-danger">- <span th:text="${discount}"></span>₹</p> -->
                         </div>
                         <div class="d-flex justify-content-between">
-                            
+                            <form th:action="@{/user/couponApply}" method="post">
+            <div class="input-group mt-3 mb-4">
+                <input type="text" class="form-control" name="couponCode"  placeholder="Discount code" aria-label="Discount code" />
+                <button class="btn btn-outline-primary" type="submit">Apply</button>
+                
+            </div>
+            
+        </form>
                         </div>
                         <hr />
-                        <div class="input-group mt-3 mb-4">
-                            <input type="text" class="form-control" placeholder="Discount code" aria-label="Discount code" />
-                            <button class="btn btn-outline-primary" type="button">Apply</button>
-                        </div>
+                       
                     </div>
                 </div>
             </div>
         </div>
-        </form>
-        <button class="btn btn-primary" type="button" th:onclick="'CreateOrderID(' + ${total} + ')'">order placed</button></div>
+        
+        <!-- <button class="btn btn-primary" type="button" onclick="createOrderAndOpenCheckout()">order placed</button></div> -->
 </section>
 
 <footer class="bg-white">
@@ -255,51 +331,149 @@
     </div>
 </footer>
 
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+
 <script>
-    var xhttp = new XMLHttpRequest();
-    function CreateOrderID(amount) {
-        totalAmount = amount*100;
-        xhttp.open("GET", "/payment/createOrderId/"+totalAmount, false);
-        xhttp.send();
-        var razorpayOrderId = xhttp.responseText;
-        console.log("razorpayOrderId" + razorpayOrderId);
-        OpenCheckout(amount, razorpayOrderId);
+    // Function to set the value of the selected address in the hidden input
+    function setSelectedAddress() {
+        var selectedAddress = document.getElementById('selectedAddress').value;
+        var walletLink = document.querySelector('.button.a');
+        walletLink.href = walletLink.href + selectedAddress;
     }
 </script>
 
-<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
 <script>
-    function OpenCheckout(amount, razorpayOrderId) {
-        var options = {
-            "key": "[[${rzp_key_id}]]", // Enter the Key ID generated from the Dashboard
-            "amount": totalAmount.toString(), // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
-<!--            "currency": "[[${rzp_currency}]]",-->
-            "name": "[[${rzp_company_name}]]",
-    <!--        "description": description,-->
-            "image": "/assets/users/images/logo.png",
-            "order_id": razorpayOrderId, //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
-            "callback_url": "/payment/success/"+amount+"/[[${rzp_company_name}]]",
-            "notes": {
-                "company_name": "[[${rzp_company_name}]]",
-            },
-            "theme": {
-                "color": "#004A55"
+    function success() {
+        Swal.fire({
+            title: "Order Placed!",
+            text: "your item will be delivered soon!",
+            icon: "success",
+            showCancelButton: false,
+            confirmButtonText: "Continue",
+        }).then((result) => {
+            // If the user clicks "Submit" in the SweetAlert2 popup, then manually trigger the form submission
+            if (result.isConfirmed) {
+                document.getElementById("paymentForm").submit();
             }
-        };
-        var rzp1 = new Razorpay(options);
-        rzp1.on('payment.failed', function (response){
-                console.log(response.error.code);
-                console.log(response.error.description);
-                console.log(response.error.source);
-                console.log(response.error.step);
-                console.log(response.error.reason);
-                console.log(response.error.metadata.order_id);
-                console.log(response.error.metadata.payment_id);
         });
-        rzp1.open();
-        e.preventDefault();
     }
 </script>
+
+
+
+<script>
+
+    var razorpayConfig = {
+        key: "rzp_test_ZjDakOScsBJM19",
+        name: "FurniSure",
+        callback_url: "/payment/success/",
+        description: "Payment for selected address",
+        image: "/images/logo.png",
+        amount: 0, // This will be calculated later
+    };
+
+    function createOrderAndOpenCheckout() {
+        var selectedAddressId = document.getElementById("selectedAddress").value;
+        document.getElementById("selectedAddressId").value = selectedAddressId;
+
+        // Collect other payment data as needed
+       // var amount = document.getElementById("amount").value;
+       
+       var amountSpan = document.getElementById("amount");
+
+       if (amountSpan) {
+        var amount = parseInt(amountSpan.textContent, 10);
+        // Now 'amount' contains the text content of the 'amountSpan'
+        console.log(amount);
+        } else {
+            console.log("Element with ID 'amount' not found.");
+        }
+
+
+
+     //   var contactCounts = document.getElementById("contactCounts").value;
+
+        // Calculate the total amount (in paisa) based on your data
+        var totalAmount = amount * 100;
+
+        razorpayConfig.amount = totalAmount;
+
+        // Make an AJAX request to create the order
+        $.ajax({
+            url: "/payment/createOrder", // Replace with your server endpoint
+            type: "POST",
+            data: {
+                amount: amount, // Convert 'amount' to a float
+            //   contactCounts: contactCounts,
+                selectedAddressId: selectedAddressId
+            },
+            success: function (data) {
+                // Assuming you get the Razorpay order ID in the response
+                razorpayConfig.order_id = data.order_id;
+                
+
+                var rzp = new Razorpay(razorpayConfig);
+                rzp.on("payment.failed", function (response) {
+                    // Handle payment failure
+                    console.log(response.error);
+                });
+                rzp.open();
+            },
+            error: function () {
+                // Handle the error
+            }
+        });
+    }
+</script>
+
+<!--<script>-->
+<!--    var xhttp = new XMLHttpRequest();-->
+<!--    function CreateOrderID(amount) {-->
+<!--        totalAmount = amount*100;-->
+<!--        xhttp.open("GET", "/payment/createOrderId/"+totalAmount, false);-->
+<!--        xhttp.send();-->
+<!--        var razorpayOrderId = xhttp.responseText;-->
+<!--        console.log("razorpayOrderId" + razorpayOrderId);-->
+<!--        OpenCheckout(amount, razorpayOrderId);-->
+<!--    }-->
+<!--</script>-->
+
+<!--<script src="https://checkout.razorpay.com/v1/checkout.js"></script>-->
+<!--<script>-->
+<!--    function OpenCheckout(amount, razorpayOrderId) {-->
+<!--        var options = {-->
+<!--            "key": "[[${rzp_key_id}]]", // Enter the Key ID generated from the Dashboard-->
+<!--            "amount": totalAmount.toString(), // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise-->
+<!--&lt;!&ndash;            "currency": "[[${rzp_currency}]]",&ndash;&gt;-->
+<!--            "name": "[[${rzp_company_name}]]",-->
+<!--    &lt;!&ndash;        "description": description,&ndash;&gt;-->
+<!--            "image": "/assets/users/images/logo.png",-->
+<!--            "order_id": razorpayOrderId, //This is a sample Order ID. Pass the `id` obtained in the response of Step 1-->
+<!--            "callback_url": "/payment/success/"+amount+"/[[${rzp_company_name}]]",-->
+<!--            "notes": {-->
+<!--                "company_name": "[[${rzp_company_name}]]",-->
+<!--            },-->
+<!--            "theme": {-->
+<!--                "color": "#004A55"-->
+<!--            }-->
+<!--        };-->
+<!--        var rzp1 = new Razorpay(options);-->
+<!--        rzp1.on('payment.failed', function (response){-->
+<!--                console.log(response.error.code);-->
+<!--                console.log(response.error.description);-->
+<!--                console.log(response.error.source);-->
+<!--                console.log(response.error.step);-->
+<!--                console.log(response.error.reason);-->
+<!--                console.log(response.error.metadata.order_id);-->
+<!--                console.log(response.error.metadata.payment_id);-->
+<!--        });-->
+<!--        rzp1.open();-->
+<!--        e.preventDefault();-->
+<!--    }-->
+<!--</script>-->
 <!--<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js" integrity="sha384-6zy5EXzWqpF+ur0tUf1CsJ4tdFwtNpd2wUrS9l5l3dBO7z6GscumW5x2Rbi8fZpze" crossorigin="anonymous"></script>-->
 <!--<script>-->
 <!--    // When the user changes the selection, handle the selected option-->

@@ -2,16 +2,9 @@ package com.sheryians.major.domain;
 
 import javax.persistence.*;
 
-import com.sheryians.major.domain.Address;
-import com.sheryians.major.domain.OrderItem;
-import com.sheryians.major.domain.User;
-import com.sheryians.major.repository.OrderStatusRepository;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -48,6 +41,11 @@ public class Orders {
     @ManyToOne
     private OrderStatus orderStatus;
 
+    @ManyToOne
+    @JoinColumn(name = "payment_method_id") // Specify the column name in the Orders table
+    private PaymentMethod paymentMethod;
+
+
 
     // define constructors
 
@@ -75,7 +73,7 @@ public class Orders {
         this.id = id;
     }
 
-    public int getAmount() {
+    public double getAmount() {
         return amount;
     }
 

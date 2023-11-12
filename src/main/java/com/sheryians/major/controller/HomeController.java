@@ -1,15 +1,9 @@
 package com.sheryians.major.controller;
 
 
-import com.sheryians.major.domain.Cart;
-import com.sheryians.major.domain.CartItem;
-import com.sheryians.major.domain.Product;
-import com.sheryians.major.domain.ProductImage;
+import com.sheryians.major.domain.*;
 import com.sheryians.major.repository.CartItemRepository;
-import com.sheryians.major.service.CartService;
-import com.sheryians.major.service.CategoryService;
-import com.sheryians.major.service.ProductImageService;
-import com.sheryians.major.service.ProductService;
+import com.sheryians.major.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -26,6 +20,9 @@ public class HomeController {
     CategoryService categoryService;
 
     @Autowired
+    UserService userService;
+
+    @Autowired
     ProductImageService productImageService;
 
     @Autowired
@@ -38,6 +35,13 @@ public class HomeController {
 
     @GetMapping("/")
     public String home(Model model, Principal principal){
+
+
+        if(principal!=null){
+            User user = userService.getUserByEmail(principal.getName());
+
+            System.out.println("has wallet");
+        }
 
         if(principal == null){
             model.addAttribute("categories",categoryService.getAllCategory());

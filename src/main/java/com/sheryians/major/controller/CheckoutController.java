@@ -4,22 +4,18 @@ import com.sheryians.major.domain.*;
 import com.sheryians.major.repository.*;
 import com.sheryians.major.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Controller;
-import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.security.Principal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Controller
 public class CheckoutController {
@@ -55,8 +51,12 @@ public class CheckoutController {
     @Autowired
     ProductRepository productRepository;
 
+    private final Environment env;
 
 
+    public CheckoutController(Environment env) {
+        this.env = env;
+    }
 
 
     // show checkout page by passing values
@@ -73,6 +73,9 @@ public class CheckoutController {
             model.addAttribute("items", cartItems);
             model.addAttribute("cart", cart);
             model.addAttribute("total", totalPrice);
+            model.addAttribute("rzp_key_id", env.getProperty("rzp_key_id"));
+            model.addAttribute("rzp_currency", env.getProperty("rzp_currency"));
+            model.addAttribute("rzp_company_name", env.getProperty("rzp_company_name"));
             if (principle.getName() != null) {
                 if (cart != null) {
                     List<CartItem> cartItemList = cart.getCartItems();
@@ -139,19 +142,21 @@ public class CheckoutController {
         Cart cart = cartService.getCartForUser(principal.getName());
         User user = userService.getUserByEmail(principal.getName());
         List<Address> addressList = addressService.findAllUsersAddress(user.getId());
-        if(addressList!=null){
+        if(!addressList.isEmpty()){
             address.setUser(user);
             address.setDefault(false);
             addressRepository.save(address);
             return "redirect:/showAddress";
 
-        }
+        }else{
             address.setUser(user);
             address.setDefault(true);
             addressRepository.save(address);
+            model.addAttribute("address",addressList);
+        }
 
 
-        model.addAttribute("address",addressList);
+
 
         // define count
         if (principal.getName() != null) {
@@ -166,30 +171,7 @@ public class CheckoutController {
 
     // create/store the order details in database( order placed )
 
-    @PostMapping("/submitOrder")
-    public String submitOrder(@RequestParam Long selectedAddress, Principal principal, Model model, RedirectAttributes redidAttrs){
-        Orders order = new Orders();
-        User user = userService.getUserByEmail(principal.getName());
-        Cart cart = cartService.getCartForUser(principal.getName());
-        Address address = addressService.findById(selectedAddress);
-        List<CartItem> cartItems = cartItemService.getAllItems(cart);
-        CartItem cartItem = cartItems.get(0);
-        double totalPrice = cart.calculateCartTotal();
 
-        order.setOrderStatus(orderStatusRepository.findById(1L).get());
-
-        order.setUser(user);
-        order.setAmount((int) totalPrice);
-        order.setLocalDate(LocalDate.now());
-//        order.getOrderItems(cartItems);
-        order.setAddress(address);
-        orderRepository.save(order);
-
-        List<OrderItem> orderItems = orderItemService.moveItemsFromCartToOrder( principal.getName(),order);
-        System.out.println(orderItems);
-
-        return "redirect:/";
-    }
 
 
 //    @GetMapping("/makePurchase/{id}")

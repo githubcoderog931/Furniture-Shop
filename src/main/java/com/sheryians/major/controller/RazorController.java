@@ -3,9 +3,12 @@ package com.sheryians.major.controller;
 import com.razorpay.Order;
 import com.razorpay.RazorpayClient;
 import com.razorpay.RazorpayException;
-import com.sheryians.major.domain.Payments;
+import com.sheryians.major.domain.*;
 
+import com.sheryians.major.repository.OrderRepository;
+import com.sheryians.major.repository.OrderStatusRepository;
 import com.sheryians.major.repository.PaymentRepository;
+import com.sheryians.major.service.*;
 import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,11 +18,38 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.servlet.http.HttpSession;
+import java.security.Principal;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Map;
+
 @Controller
 public class RazorController {
 
     @Autowired
     PaymentRepository paymentRepository;
+
+    @Autowired
+    OrderItemService orderItemService;
+
+    @Autowired
+    OrderRepository orderRepository;
+
+    @Autowired
+    OrderStatusRepository orderStatusRepository;
+
+    @Autowired
+    CartService cartService;
+
+    @Autowired
+    AddressService addressService;
+
+    @Autowired
+    CartItemService cartItemService;
+
+    @Autowired
+    UserService userService;
 
     private final Environment env;
 
@@ -47,6 +77,7 @@ public class RazorController {
 
             Order order = razorpay.orders.create(orderRequest);
             orderId = order.get("id");
+
         } catch (RazorpayException e) {
             // Handle Exception
             System.out.println(e.getMessage());
@@ -54,7 +85,7 @@ public class RazorController {
         return orderId;
     }
 
-    @RequestMapping(value = {"/payment/success/{amount}/{companyName}"}, method = RequestMethod.POST)
+    @RequestMapping(value = {"/payment/succes/{amount}/{companyName}"}, method = RequestMethod.POST)
     public String paymentSuccess(Model model,
                                  Authentication authentication,
                                  @RequestParam("razorpay_payment_id") String razorpayPaymentId,
@@ -76,4 +107,7 @@ public class RazorController {
         System.out.println("Save all data, which on success we get!");
         return "redirect:/";
     }
+
+
 }
+

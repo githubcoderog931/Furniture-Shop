@@ -48,6 +48,9 @@ public class UserProfileController {
     CartService cartService;
 
     @Autowired
+    WalletService walletService;
+
+    @Autowired
     OrderService orderService;
 
     @Autowired
@@ -108,12 +111,16 @@ public class UserProfileController {
     // cancel order handle
 
     @GetMapping("/cancelOrder/{id}")
-    String cancelOrder(@PathVariable("id") long id, Model model, RedirectAttributes redirectAttributes) {
+    String cancelOrder(@PathVariable("id") long id, Model model, RedirectAttributes redirectAttributes, Principal principal) {
         Orders orders = orderRepository.findById(id).orElse(null);
         List<OrderItem> orderItems = orderItemRepository.findByOrders(orders);
+        User user = userService.getUserByEmail(principal.getName());
         assert orders != null;
         orders.setOrderStatus(orderStatusRepository.findById(5L).get());
         String cancelStatus = orders.getOrderStatus().getStatus();
+        Wallet wallet = user.getWallet();
+       Double previousAmount = wallet.getWalletAmount();
+        wallet.setWalletAmount(orders.getAmount()+previousAmount);
         for(OrderItem items : orderItems){
             if (Objects.equals(orders.getOrderStatus().getStatus(), cancelStatus)){
                 int quantity = items.getQuantity();
@@ -220,5 +227,15 @@ public class UserProfileController {
 
         return "redirect:/showAddress";
     }
+
+
+    // show wallet page
+
+    @GetMapping("/userWallet")
+    public String userWallet(){
+        return "user/wallet";
+    }
+
+
 
 }

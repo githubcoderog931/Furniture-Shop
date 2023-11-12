@@ -8,6 +8,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.security.Principal;
 import java.util.List;
@@ -31,6 +32,12 @@ public class OrderController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    CouponService couponService;
+
+    @Autowired
+    CouponRepository couponRepository;
 
     @Autowired
     private AddressRepository addressRepository;
@@ -57,6 +64,16 @@ public class OrderController {
     }
 
 
+
+
+
+
+
+
+
+
+
+
     // create order controller
 
     @GetMapping("/orderPlaced")
@@ -71,14 +88,14 @@ public class OrderController {
         if (exists) {
             List<CartItem> cartItems = cartItemService.getAllItems(cart);
             double totalPrice = cart.calculateCartTotal();
-            double discount = 0.0;
-            double tax = 0.0;
-            if (totalPrice != 0) {
-
-                discount = 60.0;
-                tax = 80.0;
-                totalPrice = totalPrice - (discount + tax);
-            }
+//            double discount = 0.0;
+//            double tax = 0.0;
+//            if (totalPrice != 0) {
+//
+//                discount = 60.0;
+//                tax = 80.0;
+//                totalPrice = totalPrice - (discount + tax);
+//            }
             List<Address> address = addressService.findAllUsersAddress(user.getId());
             if (principal.getName() != null) {
                 if (cart != null) {
@@ -101,10 +118,10 @@ public class OrderController {
             model.addAttribute("cart", cart);
             model.addAttribute("total", totalPrice);
 //            model.addAttribute("discount", discount);
-            model.addAttribute("tax", tax);
-            model.addAttribute("rzp_key_id", env.getProperty("rzp_key_id"));
-            model.addAttribute("rzp_currency", env.getProperty("rzp_currency"));
-            model.addAttribute("rzp_company_name", env.getProperty("rzp_company_name"));
+//            model.addAttribute("tax", tax);
+//            model.addAttribute("rzp_key_id", env.getProperty("rzp_key_id"));
+//            model.addAttribute("rzp_currency", env.getProperty("rzp_currency"));
+//            model.addAttribute("rzp_company_name", env.getProperty("rzp_company_name"));
 
 
             if (username != null) {

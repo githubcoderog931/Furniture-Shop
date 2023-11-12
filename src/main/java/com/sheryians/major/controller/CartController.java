@@ -66,14 +66,14 @@ public class CartController {
             Cart cart = cartService.getCartForUser(username);
             List<CartItem> cartItems = cartItemService.getAllItems(cart);
                 double totalPrice = cart.calculateCartTotal();
-                double discount = 0.0;
-                double tax = 0.0;
-                if(totalPrice != 0){
-
-                    discount = 60.0;
-                    tax = 80.0;
-                    totalPrice = totalPrice - (discount + tax);
-                }
+//                double discount = 0.0;
+//                double tax = 0.0;
+//                if(totalPrice != 0){
+//
+//                    discount = 60.0;
+//                    tax = 80.0;
+//                    totalPrice = totalPrice - (discount + tax);
+//                }
             if(username != null){
                 if (cart != null){
                     List<CartItem> cartItemList =  cart.getCartItems();
@@ -83,9 +83,9 @@ public class CartController {
             }
                 model.addAttribute("items",cartItems);
                 model.addAttribute("cart",cart);
-                model.addAttribute("total",totalPrice);
-                model.addAttribute("discount",discount);
-                model.addAttribute("tax",tax);
+                model.addAttribute("totalPrice",totalPrice);
+//                model.addAttribute("discount",discount);
+//                model.addAttribute("tax",tax);
 
             return "cart1";
         }

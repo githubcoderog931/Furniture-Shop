@@ -52,6 +52,7 @@ public class Cart {
 
         return grandTotal;
     }
+    public  double discountPrice;
 
 
     // define constructors

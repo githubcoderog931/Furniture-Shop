@@ -3,6 +3,7 @@ package com.sheryians.major.domain;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
@@ -62,6 +63,10 @@ public class User {
     private boolean verified;
     private String otp;
     private LocalDateTime otpGeneratedTime;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    @ToString.Exclude
+    private Wallet wallet;
 
 
     // define constructors
