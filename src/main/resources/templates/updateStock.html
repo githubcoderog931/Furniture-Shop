@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <form th:action="@{/updateStock}" method="post">
+    <h3>Product : <span th:text="${product.name}"></span></h3>
+    <input th:value="${productId}" type="hidden" class="form-control"  name="productId"  required>
+    <h3>Current Stocks : <span th:text="${product.unitsInStock}"></span></h3>
+    <input type="number" name="newStock">
+    <button type="submit">update stock</button>
+  </form>
+  <div th:if="${stockError}" class="alert alert-danger">
+    <p th:text="${stockError}"></p>
+</div>
+</body>
+</html>

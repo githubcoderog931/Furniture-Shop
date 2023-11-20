@@ -44,7 +44,7 @@
                 <div class="order-lg-last col-lg-5 col-sm-8 col-8">
                     <div class="d-flex float-end">
                         <div sec:authorize="hasRole('ADMIN')">
-                            <a  th:href="@{admin/home}"  class="me-3 btn btn-outline-dark mt-auto"> Admin Panel</a>
+                            <a  th:href="@{admin/dashboard}"  class="me-3 btn btn-outline-dark mt-auto"> Admin Panel</a>
                         </div>
                         <div sec:authorize="hasRole('USER')">
                             <a  th:href="@{/user}"  class="me-3 btn btn-outline-dark mt-auto"> Profile</a>

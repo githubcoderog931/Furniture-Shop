@@ -1,8 +1,9 @@
 package com.sheryians.major.controller;
 
+import com.sheryians.major.constants.OrderStatus;
 import com.sheryians.major.domain.Orders;
 import com.sheryians.major.repository.OrderRepository;
-import com.sheryians.major.repository.OrderStatusRepository;
+//import com.sheryians.major.repository.OrderStatusRepository;
 import com.sheryians.major.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -16,8 +17,8 @@ public class AdminOrderController {
     @Autowired
     OrderService orderService;
 
-    @Autowired
-    OrderStatusRepository orderStatusRepository;
+//    @Autowired
+//    OrderStatusRepository orderStatusRepository;
 
     @Autowired
     OrderRepository orderRepository;
@@ -36,25 +37,27 @@ public class AdminOrderController {
 
     @GetMapping("/admin/order/cancel/{id}")
     public String getCancelOrder(@PathVariable long id) {
+        Orders orders = orderRepository.findById(id).orElse(null);
+        if (orders != null) {
+            // Assuming you have an OrderStatusRepository to fetch the 'ORDER' status
+            OrderStatus cancelledStatus = OrderStatus.CANCELLED;
 
-        Orders orders = orderRepository.findById(id).get();
-
-        orders.setOrderStatus(orderStatusRepository.findById(5L).get());
-
-        orderRepository.save(orders);
-
-
+            orders.setOrderStatus(cancelledStatus);
+            orderRepository.save(orders);
+        }
         return "redirect:/admin/orders";
     }
 
     @GetMapping("/admin/order/shipped/{id}")
     public String getShippedOrder(@PathVariable long id) {
+        Orders orders = orderRepository.findById(id).orElse(null);
+        if (orders != null) {
+            // Assuming you have an OrderStatusRepository to fetch the 'ORDER' status
+            OrderStatus shippedStatus = OrderStatus.SHIPPED;
 
-        Orders orders = orderRepository.findById(id).get();
-
-        orders.setOrderStatus(orderStatusRepository.findById(2L).get());
-
-        orderRepository.save(orders);
+            orders.setOrderStatus(shippedStatus);
+            orderRepository.save(orders);
+        }
         return "redirect:/admin/orders";
     }
 
@@ -62,7 +65,7 @@ public class AdminOrderController {
     public String getPendingOrder(@PathVariable long id) {
 
         Orders orders = orderRepository.findById(id).get();
-        orders.setOrderStatus(orderStatusRepository.findById(6L).get());
+        orders.setOrderStatus(OrderStatus.PENDING);
         orderRepository.save(orders);
         return "redirect:/admin/orders";
     }
@@ -71,25 +74,34 @@ public class AdminOrderController {
     public String getTransitOrder(@PathVariable long id) {
 
         Orders orders = orderRepository.findById(id).get();
-        orders.setOrderStatus(orderStatusRepository.findById(3L).get());
+        orders.setOrderStatus(OrderStatus.TRANSIT);
         orderRepository.save(orders);
         return "redirect:/admin/orders";
     }
 
     @GetMapping("/admin/order/delivered/{id}")
     public String getDeliveredOrder(@PathVariable long id) {
+        Orders orders = orderRepository.findById(id).orElse(null);
+        if (orders != null) {
+            // Assuming you have an OrderStatusRepository to fetch the 'ORDER' status
+            OrderStatus deliveredStatus = OrderStatus.DELIVERED;
 
-        Orders orders = orderRepository.findById(id).get();
-        orders.setOrderStatus(orderStatusRepository.findById(4L).get());
-        orderRepository.save(orders);
+            orders.setOrderStatus(deliveredStatus);
+            orderRepository.save(orders);
+        }
         return "redirect:/admin/orders";
     }
 
     @GetMapping("/admin/order/confirmed/{id}")
     public String getConfirmedOrder(@PathVariable long id) {
-        Orders orders = orderRepository.findById(id).get();
-        orders.setOrderStatus(orderStatusRepository.findById(1L).get());
-        orderRepository.save(orders);
+        Orders orders = orderRepository.findById(id).orElse(null);
+        if (orders != null) {
+            // Assuming you have an OrderStatusRepository to fetch the 'ORDER' status
+            OrderStatus confirmedStatus = OrderStatus.ORDER;
+
+            orders.setOrderStatus(confirmedStatus);
+            orderRepository.save(orders);
+        }
         return "redirect:/admin/orders";
     }
 }

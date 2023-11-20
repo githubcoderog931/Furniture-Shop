@@ -69,6 +69,13 @@ public class User {
     private Wallet wallet;
 
 
+    private String referralCode;
+
+    @OneToMany(mappedBy = "referrer")
+    private List<Referral> referredUsers;
+
+
+
     // define constructors
 
     public User(){

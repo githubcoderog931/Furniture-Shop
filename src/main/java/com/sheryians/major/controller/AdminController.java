@@ -3,14 +3,8 @@ package com.sheryians.major.controller;
 
 import com.sheryians.major.domain.*;
 import com.sheryians.major.dto.ProductDTO;
-import com.sheryians.major.repository.CategoryRepository;
-import com.sheryians.major.repository.OrderRepository;
-import com.sheryians.major.repository.ProductImageRepository;
-import com.sheryians.major.repository.ProductRepository;
-import com.sheryians.major.service.CategoryService;
-import com.sheryians.major.service.OrderService;
-import com.sheryians.major.service.ProductService;
-import com.sheryians.major.service.UserService;
+import com.sheryians.major.repository.*;
+import com.sheryians.major.service.*;
 import org.hibernate.criterion.Order;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -30,13 +24,23 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static java.util.Arrays.stream;
+
 @Controller
 public class AdminController {
     public static String uploadDir = System.getProperty("user.dir") + "/src/main/resources/static/productImages";
     @Autowired
     CategoryService categoryService;
+
+    @Autowired
+    ReferralRepository referralRepository;
+
+    @Autowired
+    ReferralService referralService;
+
     @Autowired
     ProductService productService;
+    
     @Autowired
     UserService userService;
 
@@ -44,12 +48,13 @@ public class AdminController {
     ProductRepository productRepository;
 
     @Autowired
-    ProductImageRepository productImageRepository;
+    OrderRepository orderRepository;
 
     @Autowired
-    OrderService orderService;
-    @Autowired
-    OrderRepository orderRepository;
+    ProductImageRepository productImageRepository;
+
+
+
 
     @Autowired
     CategoryRepository categoryRepository;
@@ -362,6 +367,15 @@ public class AdminController {
 
     }
 
-
+//    @GetMapping("/referrals")
+//    public String viewCompleteReferals(Principal principal, Model model){
+//        User user = userService.findByUsername(principal.getName());
+//        List<Referral> referral = referralRepository.findAll();
+//        Long referralCount = (long) referral.size();
+//        List<Referral> referralComplete = referralRepository.findByComplete(user);
+//        model.addAttribute("successfullReferral",referralComplete);
+//        model.addAttribute("totalReferral",referralCount);
+//
+//    }
 
 }

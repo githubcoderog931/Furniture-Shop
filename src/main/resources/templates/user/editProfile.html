@@ -30,7 +30,7 @@
                         <div class="user-image mt-3">
                             <img src="https://bootdey.com/img/Content/avatar/avatar7.png" height="100px"  class="img-radius" alt="User-Profile-Image">
                         </div>
-                        <h5 class="f-w-600 m-t-25 m-b-10 mt-3" ><span th:text="${user.firstname}">dd</span> &nbsp; <span th:text="${lastName}">dd</span></h5>
+                        <h5 class="f-w-600 m-t-25 m-b-10 mt-3" ><span th:text="${user.firstname}">dd</span>  <span th:text="${user.lastname}">dd</span></h5>
                         <h6 class="f-w-600 m-t-25 m-b-10 mt-3" th:text="${user.email}">email : </h6>
                     </div>
                     <div class="col-md-10 m-3">
@@ -66,6 +66,16 @@
                                 <input type="email" class="form-control shadow-sm" name="email" id="email" th:value="${user.email}">
                             </div> -->
                             <button type="submit" class="btn btn-primary shadow-lg">Save Changes</button>
+                        </form>
+                    </div>
+                    <div>
+                        <form action="/applyCode" method="post">
+                            <div class="input-group ">
+                                <input type="text" id="referral" name="referral" class="form-control ml-4 col-2 shadow " placeholder="Enter code" >
+                                <div class="form-group-append">
+                                    <button type="submit" class="btn btn-primary ml-2">Apply</button>
+                                </div>
+                            </div>
                         </form>
                     </div>
                     <div class="col-md-10 m-3">

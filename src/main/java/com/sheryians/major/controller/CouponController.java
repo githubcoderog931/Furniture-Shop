@@ -9,6 +9,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -59,8 +60,8 @@ public class CouponController {
                                    @RequestParam("expiryDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate expiryDate,
                                    @RequestParam("maxAmount") int maxAmount,
                                    @RequestParam("couponStock") int couponStock,
-                                   @RequestParam("cartAmount") Double cartAmount
-                                   ){
+                                   @RequestParam("cartAmount") Double cartAmount,
+                                   RedirectAttributes redirectAttributes){
         Coupon coupon = new Coupon();
         coupon.setCouponCode(couponCode);
         coupon.setDiscount(discount);
@@ -69,8 +70,19 @@ public class CouponController {
         coupon.setCouponStock(couponStock);
         coupon.setCartAmount(cartAmount);
         couponRepository.save(coupon);
-        return "adminCoupon";
+        redirectAttributes.addFlashAttribute("couponAdded","!!The Coupon has been Added successfully!!!");
+        return "redirect:/admin/coupon";
     }
+
+    @GetMapping("/admin/deleteCoupon/{id}")
+    public String deleteCoupon(@PathVariable("id")Long id, RedirectAttributes redirectAttributes){
+        Coupon coupon = couponRepository.findById(id).orElse(null);
+        assert coupon != null;
+        couponRepository.delete(coupon);
+        redirectAttributes.addFlashAttribute("couponDeleted","!!The Coupon has been deleted successfully!!!");
+        return "redirect:/admin/coupon";
+    }
+
 
 
 //    @PostMapping("/user/couponApply")

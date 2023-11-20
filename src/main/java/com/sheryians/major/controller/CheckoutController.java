@@ -23,8 +23,8 @@ public class CheckoutController {
     @Autowired
     AddressRepository addressRepository;
 
-    @Autowired
-    OrderStatusRepository orderStatusRepository;
+//    @Autowired
+//    OrderStatusRepository orderStatusRepository;
     @Autowired
     AddressService addressService;
 

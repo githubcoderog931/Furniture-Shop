@@ -6,7 +6,7 @@ import com.razorpay.RazorpayException;
 import com.sheryians.major.domain.*;
 
 import com.sheryians.major.repository.OrderRepository;
-import com.sheryians.major.repository.OrderStatusRepository;
+//import com.sheryians.major.repository.OrderStatusRepository;
 import com.sheryians.major.repository.PaymentRepository;
 import com.sheryians.major.service.*;
 import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
@@ -36,8 +36,8 @@ public class RazorController {
     @Autowired
     OrderRepository orderRepository;
 
-    @Autowired
-    OrderStatusRepository orderStatusRepository;
+//    @Autowired
+//    OrderStatusRepository orderStatusRepository;
 
     @Autowired
     CartService cartService;

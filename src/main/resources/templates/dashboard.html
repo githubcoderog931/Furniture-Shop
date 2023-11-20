@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <!-- Include Bootstrap and Chart.js libraries via CDN -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap">
+</head>
+<body>
+<style>
+    .sidebar-text {
+    font-family: 'Roboto', sans-serif;
+    
+    /* Additional styling if needed */
+}
+.card-opt{
+    background-color: #ffff;
+    color: #000000
+}
+.card-opt:hover {
+    background-color: rgb(44, 143, 64); 
+    color: rgb(204, 204, 204);
+    transition: background-color 0.3s ease; /* Smooth transition effect */
+}
+
+
+</style>
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <nav id="sidebar" class=" col-md-4 col-lg-2 d-md-block bg-light sidebar ">
+            <div class="sidebar-sticky"  style="border-radius: 10px;">
+                <div class="card shadow-lg mb-2 " >
+                    <div class="card-header">
+                        <h5 class="mb-0">Admin Options</h5>
+                    </div>
+                </div>
+                
+                <!-- Dashboard Option -->
+                <div class="card card-opt  mt-3 shadow-lg" style="border-radius: 10px;">
+                    <div class="card-body">
+                        <a th:href="@{/admin/categories}" class="nav-link active sidebar-text" >Categories</a>
+                    </div>
+                </div>
+
+                <!-- Order Management Option -->
+                <div class="card card-opt mt-3 shadow-lg" style="border-radius: 10px;">
+                    <div class="card-body">
+                        <a th:href="@{/admin/products}" class="nav-link sidebar-text">Products</a>
+                    </div>
+                </div>
+
+                <!-- Cart Management Option -->
+                <div class="card card-opt  mt-3 shadow-lg" style="border-radius: 10px;">
+                    <div class="card-body">
+                        <a th:href="@{/admin/ManageUsers}" class="nav-link sidebar-text">User Control</a>
+                    </div>
+                </div>
+
+                <div class="card card-opt  mt-3 shadow-lg" style="border-radius: 10px;">
+                    <div class="card-body">
+                        <a th:href="@{/admin/orders}" class="nav-link active sidebar-text" >Orders</a>
+                    </div>
+                </div>
+
+                <div class="card card-opt  mt-3 shadow-lg" style="border-radius: 10px;">
+                    <div class="card-body">
+                        <a th:href="@{/admin/manageStocks}" class="nav-link active sidebar-text" >Stock</a>
+                    </div>
+                </div>
+
+                <div class="card card-opt  mt-3 shadow-lg" style="border-radius: 10px;">
+                    <div class="card-body">
+                        <a th:href="@{/admin/coupon}" class="nav-link active sidebar-text" >Coupon</a>
+                    </div>
+                </div>
+
+                <!-- Add more options as needed -->
+            </div>
+        </nav>
+
+        <!-- Content -->
+        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+            <!-- Content goes here -->
+            <div class="container mt-4">
+                <div class="d-flex ">
+                    <div>
+                        <h2 class="mb-0 pb-0 ">Admin Dashboard</h2>
+                        <div>
+                            <div class="card  col-12 card-opt">
+                                <div class="card-body d-flex flex-column">
+                                    <h5 class="card-text">Referrals</h5>
+                                    <div>
+                                        <b>Total referral count : </b>
+                                        <b><span th:text="${totalReferral}"></span></b>
+                                    </div>
+                                    <div>
+                                        <b>Successfull refferals :</b>
+                                        <b><span th:text="${successfullReferral}"></span> </b>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card ml-2 card-opt">
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-text">Today</h5>
+                            <div>
+                                <b>Order count : </b>
+                                <b><span th:text="${salesDataForOneDay.totalOrderCount}"></span></b>
+                            </div>
+                            <div>
+                                <b>Sales :</b>
+                                <b><span th:text="${salesDataForOneDay.totalRevenue}"></span> ₹ </b>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card ml-2 card-opt">
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-text">This Week</h5>
+                            <div>
+                                <b>Order count : </b>
+                                <b><span th:text="${salesDataForOneWeek.totalOrderCount}"></span></b>
+                            </div>
+                            <div>
+                                <b>Sales :</b>
+                                <b><span th:text="${salesDataForOneWeek.totalRevenue}"></span> ₹</b>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card ml-2 card-opt">
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-text">This Month</h5>
+                            <div>
+                                <b>Order count : </b>
+                                <b><span th:text="${salesDataForOneMonth.totalOrderCount}"></span></b>
+                            </div>
+                            <div>
+                                <b>Sales :</b>
+                                <b><span th:text="${salesDataForOneMonth.totalRevenue}"></span> ₹</b>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card ml-2 card-opt">
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-text">This Year</h5>
+                            <div>
+                                <b>Order count : </b>
+                                <b><span th:text="${salesDataForOneYear.totalOrderCount}"></span></b>
+                            </div>
+                            <div>
+                                <b>Sales :</b>
+                                <b><span th:text="${salesDataForOneYear.totalRevenue}"></span> ₹</b>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Dropdown for selecting time period -->
+                <div class="form-group">
+                    <label for="timePeriodSelector">Select Time Period:</label>
+                    <select id="timePeriodSelector" onchange="updateCharts(this.value)" class="form-control">
+                        <option value="WEEKLY">Weekly</option>
+                        <option value="DAILY">Daily</option>
+                        <option value="MONTHLY">Monthly</option>
+                    </select>
+                </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-lg">
+                <div class="card-body">
+                    <h5 class="card-title">Daily Sales</h5>
+                    <canvas id="dailySalesChart" width="500" height="500"></canvas>
+                </div>
+            </div>
+        </div>
+        <!-- Pie Chart -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-lg">
+                <div class="card-body">
+                    <h5 class="card-title">Pie Chart</h5>
+                    <canvas id="pieChart" width="500" height="500"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+        
+
+        <!-- Chart for Daily Sales -->
+        
+
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-lg">
+                <div class="card-body">
+                    <h5 class="card-title">Polar Chart</h5>
+                    <canvas id="polarChart" width="500" height="500"></canvas>
+                </div>
+            </div>
+        </div>
+
+        
+
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-lg">
+                <div class="card-body">
+                    <h5 class="card-title">All Time Sales</h5>
+                    <canvas id="allTimeSalesChart" width="500" height="500"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+</main>
+</div>
+</div>
+
+
+<!-- JavaScript for Chart.js -->
+<script th:inline="javascript">
+    // Variables to store chart instances
+    var allTimeSalesChart;
+    var dailySalesChart;
+
+    // Function to update the charts based on the selected time period
+    function updateCharts(selectedPeriod) {
+        console.log('Selected Period:', selectedPeriod);
+
+        // Fetch data based on the selected time period
+        fetch('/admin/dashboard/daily-graph?selectedPeriod=' + selectedPeriod)
+            .then(response => response.json())
+            .then(data => {
+                console.log('Received Data:', data);
+
+                // Update Chart for All Time Sales
+                updateChart('allTimeSalesChart', data.monthlyLabels, data.monthlyAmounts);
+                console.log(data.monthlyLabels)
+
+                // Update Chart for Daily Sales
+                updateChart('dailySalesChart', Object.keys(data.dailyOrderCounts), Object.values(data.dailyOrderCounts));
+            })
+            .catch(error => {
+                console.error('Error fetching data:', error);
+            });
+    }
+
+    // Function to update a chart
+    function updateChart(chartId, labels, data) {
+        var ctx = document.getElementById(chartId).getContext('2d');
+
+        // Destroy existing chart instance if it exists
+        if (window[chartId]) {
+            window[chartId].destroy();
+        }
+
+        // Create a new chart instance
+        window[chartId] = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: chartId === 'allTimeSalesChart' ? 'All Time Sales' : 'Daily Sales',
+                    data: data,
+                    backgroundColor: chartId === 'allTimeSalesChart' ? 'rgba(75, 192, 192, 0.2)' : 'rgba(255, 99, 132, 0.2)',
+                    borderColor: chartId === 'allTimeSalesChart' ? 'rgba(75, 192, 192, 1)' : 'rgba(255, 99, 132, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+
+    // Initial load of the charts with default selected value
+    updateCharts(document.getElementById('timePeriodSelector').value);
+    fetch('/admin/dashboard/daily-graph?selectedPeriod=WEEKLY')
+    .then(response => response.json())
+    .then(data => {
+        console.log('Weekly Data:', data);
+
+        var ctxPolar = document.getElementById('polarChart').getContext('2d');
+        
+        // Extracting data for the polar chart
+        var polarLabels = Object.keys(data.dailyOrderCounts);
+        var polarData = Object.values(data.dailyOrderCounts);
+
+        var polarChart = new Chart(ctxPolar, {
+            type: 'polarArea',
+            data: {
+                labels: polarLabels,
+                datasets: [{
+                    label: 'Weekly Order Counts',
+                    data: polarData,
+                    backgroundColor: ['rgba(255, 99, 132, 0.5)', 'rgba(54, 162, 235, 0.5)', 'rgba(255, 206, 86, 0.5)'],
+                    borderWidth: 1
+                }]
+            }
+        });
+
+    })
+    .catch(error => {
+        console.error('Error fetching weekly data:', error);
+    });
+
+
+    fetch('/admin/dashboard/daily-graph?selectedPeriod=WEEKLY')
+    .then(response => response.json())
+    .then(data => {
+        console.log('Weekly Data:', data);
+
+        var ctxPie = document.getElementById('pieChart').getContext('2d');
+        
+        // Extracting data for the pie chart
+        var pieLabels = Object.keys(data.dailyOrderCounts);
+        var pieData = Object.values(data.dailyOrderCounts);
+
+        var pieChart = new Chart(ctxPie, {
+            type: 'pie',
+            data: {
+                labels: pieLabels,
+                datasets: [{
+                    data: pieData,
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.5)',
+                        'rgba(54, 162, 235, 0.5)',
+                        'rgba(255, 206, 86, 0.5)'
+                    ]
+                }]
+            }
+        });
+
+    })
+    .catch(error => {
+        console.error('Error fetching weekly data:', error);
+    });
+
+
+</script>
+
+</body>
+</html>

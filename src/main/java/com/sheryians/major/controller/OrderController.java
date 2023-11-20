@@ -1,5 +1,6 @@
 package com.sheryians.major.controller;
 
+import com.sheryians.major.constants.OrderStatus;
 import com.sheryians.major.domain.*;
 import com.sheryians.major.repository.*;
 import com.sheryians.major.service.*;
@@ -21,8 +22,8 @@ public class OrderController {
     @Autowired
     private OrderRepository orderRepository;
 
-    @Autowired
-    private OrderStatusRepository orderStatusRepository;
+//    @Autowired
+//    private OrderStatusRepository orderStatusRepository;
 
     @Autowired
     private CartService cartService;
@@ -154,21 +155,32 @@ public class OrderController {
     @GetMapping("/returnProduct/{id}")
     String returnOrders(@PathVariable("id") long id,Model model) {
         Orders orders = orderRepository.findById(id).orElse(null);
-        orders.setOrderStatus(orderStatusRepository.findById(7L).get());
-        orderRepository.save(orders);
-        return "redirect:/orderHistory";
+        if (orders != null) {
+            // Assuming you have an OrderStatusRepository to fetch the 'RETURNED' status
+            OrderStatus returnedStatus = OrderStatus.RETURNED;
 
+            orders.setOrderStatus(returnedStatus);
+            orderRepository.save(orders);
+        }
+        return "redirect:/orderHistory";
     }
 
 
     @GetMapping("/confirm/{id}")
-    String confirmOrders(@PathVariable("id") long id,Model model) {
+    String confirmOrders(@PathVariable("id") long id, Model model) {
         Orders orders = orderRepository.findById(id).orElse(null);
-        orders.setOrderStatus(orderStatusRepository.findById(1L).get());
-        orderRepository.save(orders);
+        if (orders != null) {
+            // Assuming you have an OrderStatusRepository to fetch the 'ORDER' status
+            OrderStatus confirmedStatus = OrderStatus.ORDER;
+
+            orders.setOrderStatus(confirmedStatus);
+            orderRepository.save(orders);
+        }
         return "redirect:/orderHistory";
 
     }
+
+
 
 
 //    @GetMapping("/orderDetails/{id}")

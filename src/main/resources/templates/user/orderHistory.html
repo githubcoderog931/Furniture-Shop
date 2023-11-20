@@ -124,8 +124,9 @@
                         <h5 class="card-title">Order Date: <span th:text="${orders.localDate}"></span></h5>
                         <p class="card-text ">Total Amount: <span th:text="${orders.amount}">fd</span> </p>
                         <p class="card-text ">Name: <span th:text="${orders.user.firstname}">df</span> </p>
-                        <p th:if="${orders.orderStatus.status} == 'order cancelled'" class="card-text text-danger" >Status: <span th:text="${orders.orderStatus.status}"></span></p>
-                        <p th:if="${orders.orderStatus.status} == 'order confirmed'" class="card-text text-success" >Status: <span th:text="${orders.orderStatus.status}"></span></p>
+                        <p>Order Status : <span th:text="${orders.orderStatus.status}"></span></p>
+                        <p> Payment Method : <span th:text="${orders.paymentMethod.method}"></span></p>
+                        <!-- <p th:if="${orders.orderStatus.status} == 'order confirmed'" class="card-text text-success" >Status: <span th:text="${orders.orderStatus.status}"></span></p> -->
                         <p></p>
                         <p class="card-text ">email: <span th:text="${orders.user.email}">fd</span> </p>
                         <p class="card-text ">Order total: <span th:text="${orders.amount}">dfgh</span>₹ </p>
@@ -140,11 +141,12 @@
                         
 
 
-                        <a th:href="@{/cancelOrder/{id}(id=${orders.id})}"  class="m-4 btn btn-danger" 
-                        th:if="${orders.orderStatus.status} != 'order cancelled'" disabled>Cancel order</a>
+                        <!-- <a th:href="@{/cancelOrder/{id}(id=${orders.id})}"  class="m-4 btn btn-danger" 
+                        th:if="${orders.orderStatus.status} != 'order cancelled'" disabled>Cancel order</a> -->
                         
                          <!-- <a th:href="@{/returnProduct/{id}(id=${orders.id})}" erclass="m-4 btn btn-success">Return product</a> -->
                         <a th:href="@{/confirm/{id}(id=${orders.id})}" class="btn btn-warning">revert</a> 
+                        <a th:if="${orders.orderStatus.status=='order delivered'}" th:href="@{/generate-invoice/{orderId}(orderId=${orders.id})}" class="btn btn-primary">Invoice</a>
 
 
                         

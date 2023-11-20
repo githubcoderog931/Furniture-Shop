@@ -3,6 +3,8 @@ package com.sheryians.major.controller;
 import com.razorpay.Order;
 import com.razorpay.RazorpayClient;
 import com.razorpay.RazorpayException;
+import com.sheryians.major.constants.OrderStatus;
+import com.sheryians.major.constants.PaymentMethod;
 import com.sheryians.major.domain.*;
 import com.sheryians.major.repository.*;
 import com.sheryians.major.service.*;
@@ -19,12 +21,22 @@ import javax.validation.Valid;
 import java.security.Principal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 
 @Controller
 public class PaymentController {
 
     @Autowired
+    ReferralService referralService;
+
+    @Autowired
     PaymentRepository paymentRepository;
+
+    @Autowired
+     UserRepository userRepository;
+
+    @Autowired
+    ReferralRepository referralRepository;
 
     @Autowired
     OrderItemService orderItemService;
@@ -32,8 +44,8 @@ public class PaymentController {
     @Autowired
     OrderRepository orderRepository;
 
-    @Autowired
-    OrderStatusRepository orderStatusRepository;
+//    @Autowired
+//    OrderStatusRepository orderStatusRepository;
 
     @Autowired
     CartService cartService;
@@ -65,8 +77,8 @@ public class PaymentController {
     @Autowired
     AddressRepository addressRepository;
 
-    @Autowired
-     PaymentMethodRepository paymentMethodRepository;
+//    @Autowired
+//     PaymentMethodRepository paymentMethodRepository;
 
     double TotalPriceAfterDiscount=0;
     double totalPrice =0;
@@ -86,11 +98,17 @@ public class PaymentController {
 
                 double totalPrice = cart.calculateCartTotal();
 
-                Coupon coupon = couponRepository.findByCouponCode(couponCode);
+                Coupon coupon = null;
+                if (couponRepository.findByCouponCode(couponCode) != null) {
+                    coupon = couponRepository.findByCouponCode(couponCode);
 
-                if (coupon != null) {
-                    if (totalPrice >= coupon.getCartAmount()) {
+                }
+
+
+                if (coupon != null && (coupon.getCouponStock()>0) ){
+                    if (totalPrice >= coupon.getCartAmount() ) {
                         if (couponService.couponIsApplicable(coupon, totalPrice)) {
+                            List<Coupon> coupons = couponRepository.findAll();
                             double discountAmount = (totalPrice * coupon.getDiscount()) / 100.0;
                             if (discountAmount > coupon.getMaxAmount()) {
                                 discountAmount = coupon.getMaxAmount();
@@ -99,6 +117,14 @@ public class PaymentController {
                             }
                             TotalPriceAfterDiscount = totalPrice - discountAmount;
                             model.addAttribute("total", TotalPriceAfterDiscount);
+
+                            for (Coupon coupon1 : coupons) {
+                                if(Objects.equals(couponCode, coupon1.getCouponCode())){
+                                    coupon1.setCouponStock(coupon1.getCouponStock()-1);
+                                    couponRepository.save(coupon1);
+                                }
+                            }
+
                         }
                     }
 
@@ -122,10 +148,10 @@ public class PaymentController {
 
                     model.addAttribute("items", cartItems);
                     model.addAttribute("cart", cart);
-                    model.addAttribute("goodCoupon","!!!Coupon Applied successfully.");
+                    model.addAttribute("goodCoupon", "!!!Coupon Applied successfully.");
                     return "orderPlaced";
-                }else {
-                    redirectAttributes.addFlashAttribute("badCoupon","!!!Error processing the coupon check the coupon");
+                } else {
+                    redirectAttributes.addFlashAttribute("badCoupon", "!!!Error error or inactive coupon");
                     return "redirect:/orderPlaced";
                 }
             }
@@ -137,6 +163,7 @@ public class PaymentController {
 
     @GetMapping("/payWallet")
     public String payUsingWallet(@RequestParam Long selectedAddress, Principal principal, Model model, RedirectAttributes redidAttrs) {
+
         User user = userService.getUserByEmail(principal.getName());
         Cart cart = cartService.getCartForUser(principal.getName());
         Address address = addressService.findById(selectedAddress);
@@ -156,14 +183,15 @@ public class PaymentController {
             wallet.setWalletAmount(currentWalletAmt - totalPrice);
             walletRepository.save(wallet);
             Orders order = new Orders();
-            order.setOrderStatus(orderStatusRepository.findById(1L).get());
+            order.setOrderStatus(OrderStatus.ORDER);
             order.setUser(user);
             order.setAmount((int) totalPrice);
             order.setLocalDate(LocalDate.now());
 //        order.getOrderItems(cartItems);
             order.setAddress(address);
-            order.setPaymentMethod(paymentMethodRepository.findById(3L).orElse(null));
+            order.setPaymentMethod(PaymentMethod.WALLET);
             orderRepository.save(order);
+            List<OrderItem> orderItems = orderItemService.moveItemsFromCartToOrder( principal.getName(),order);
             System.out.println("ngeeeeeeeeeeeeee" + wallet.getWalletAmount() + "" + totalPrice);
             return "redirect:/";
         } else {
@@ -176,28 +204,76 @@ public class PaymentController {
 
     @PostMapping("/user/submitOrder")
     public String submitOrder(@RequestParam Long selectedAddress, Principal principal, Model model, RedirectAttributes redidAttrs){
+
         User user = userService.getUserByEmail(principal.getName());
+
         Cart cart = cartService.getCartForUser(principal.getName());
         Address address = addressService.findById(selectedAddress);
         List<CartItem> cartItems = cartItemService.getAllItems(cart);
         CartItem cartItem = cartItems.get(0);
 
+
+        System.out.println(totalPrice);
+
         if(TotalPriceAfterDiscount!=0){
             totalPrice = TotalPriceAfterDiscount;
-            System.out.println(totalPrice);
+            System.out.println(totalPrice+"if1");
         }else{
             totalPrice = cart.calculateCartTotal();
-            System.out.println(totalPrice);
+            System.out.println(totalPrice+"else1");
         }
 
+        System.out.println(totalPrice);
+
+
+
+        if (referralService.userHasReferred(user) || referralService.userHasReferrer(user)){
+            Referral referral;
+            if(referralService.userHasReferred(user)){
+                referral = referralRepository.findByReferred(user);
+                if (Objects.equals(user.getId(), referral.getReferred().getId())) {
+                    if (referral.isCompleted()) {
+                        if (referral.isReferredPurchase()) {
+                            totalPrice = cart.calculateCartTotal();
+                            double discountAmount = (totalPrice * 10) / 100.0;
+                            totalPrice = totalPrice - discountAmount;
+                            referral.setReferredPurchase(false);
+                            System.out.println(totalPrice + "if2");
+                            referralRepository.save(referral);
+                        }
+                    }
+                }
+            }else{
+                referral = referralRepository.findByReferrer(user);
+                if (Objects.equals(user.getId(), referral.getReferrer().getId())){
+                    if (referral.isCompleted()){
+                        if (referral.isReferrerPurchase()) {
+                            totalPrice = cart.calculateCartTotal();
+                            double discountAmount = (totalPrice * 10) / 100.0;
+                            totalPrice = totalPrice - discountAmount;
+                            System.out.println(totalPrice + "if3");
+                            referral.setReferrerPurchase(false);
+                            referralRepository.save(referral);
+                        }
+                    }
+                }
+            }
+
+        }
+
+
+        System.out.println(totalPrice);
+
+
         Orders order = new Orders();
-        order.setOrderStatus(orderStatusRepository.findById(1L).get());
+        order.setOrderStatus(OrderStatus.ORDER);
         order.setUser(user);
         order.setAmount((int) totalPrice);
         order.setLocalDate(LocalDate.now());
 //        order.getOrderItems(cartItems);
         order.setAddress(address);
-        order.setPaymentMethod(paymentMethodRepository.findById(2L).orElse(null));
+        order.setPaymentMethod(PaymentMethod.PAY_ON_DELIVERY);
+        System.out.println(totalPrice);
         orderRepository.save(order);
 
         List<OrderItem> orderItems = orderItemService.moveItemsFromCartToOrder( principal.getName(),order);
@@ -249,16 +325,24 @@ public class PaymentController {
         Address address = addressService.findById(selectedAddressId);
         List<CartItem> cartItems = cartItemService.getAllItems(cart);
         CartItem cartItem = cartItems.get(0);
-        double totalPrice = cart.calculateCartTotal();
 
-        order.setOrderStatus(orderStatusRepository.findById(1L).get());
+
+
+        if(TotalPriceAfterDiscount!=0){
+            totalPrice = TotalPriceAfterDiscount;
+            System.out.println(totalPrice);
+        }else{
+            totalPrice = cart.calculateCartTotal();
+            System.out.println(totalPrice);
+        }
+        order.setOrderStatus(OrderStatus.ORDER);
 
         order.setUser(user);
         order.setAmount((int) totalPrice);
         order.setLocalDate(LocalDate.now());
 //        order.getOrderItems(cartItems);
         order.setAddress(address);
-        order.setPaymentMethod(paymentMethodRepository.findById(1L).orElse(null));
+        order.setPaymentMethod(PaymentMethod.RAZORPAY);
         orderRepository.save(order);
 
         List<OrderItem> orderItems = orderItemService.moveItemsFromCartToOrder( principal.getName(),order);

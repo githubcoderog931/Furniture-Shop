@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Product Filters</title>
+  <style>
+    body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    overflow-x: hidden;
+    }
+
+    .main-content {
+    padding: 20px;
+    }
+
+    .sidebar {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 250px;
+    height: 100%;
+    background-color: #f4f4f4;
+    padding: 20px;
+    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .filter-container {
+    margin-bottom: 20px;
+    }
+
+    .filter-btn {
+    width: 100%;
+    padding: 10px;
+    background-color: #3498db;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    }
+
+    .dropdown-content,
+    .price-filter-content {
+    display: none;
+    margin-top: 10px;
+    }
+
+    .dropdown-content label,
+    .price-filter-content label {
+    display: block;
+    margin-bottom: 8px;
+    }
+
+    .apply-btn {
+    width: 100%;
+    padding: 10px;
+    background-color: #27ae60;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    }
+
+  </style>
+
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+
+</head>
+<body>
+<!-- Jumbotron -->
+<div class="p-3 text-center bg-white border-bottom">
+  <div class="container">
+      <div class="row gy-3">
+          <!-- Left elements -->
+          <div class="col-lg-2 col-sm-4 col-4">
+              <a target="_blank" class="float-start">
+                  <img th:src="@{/images/logo.png}" src="../../static/images/logo.png" width="auto" height="50" />
+              </a>
+          </div>
+          <!-- Left elements -->
+
+          <!-- Center elements -->
+          <div class="order-lg-last col-lg-5 col-sm-8 col-8">
+            <div class="d-flex float-end">
+                <div sec:authorize="hasRole('ADMIN')">
+                    <a th:href="@{admin/home}" class="me-3 btn btn-outline-dark mt-auto"> Admin Panel</a>
+                </div>
+                <div sec:authorize="hasRole('USER')">
+                    <a th:href="@{/user}" class="me-3 btn btn-outline-dark mt-auto"> Profile</a>
+                </div>
+                <a href="#" class="me-1 border rounded py-1 px-3 nav-link d-flex align-items-center" target="_blank">
+                    <i class="fas fa-heart m-1 me-md-2"></i>
+                    <p class="d-none d-md-block mb-0">Wishlist</p>
+                </a>
+                <a class="btn btn-outline-dark mt-auto me-1" th:href="@{/cart}" href="#">
+                    Cart
+                    <i class="bi-cart-fill me-1"></i>
+                    <span th:text="${cartCount}" class="badge bg-dark text-white ms-1 rounded-pill">0</span>
+                </a>
+                <div sec:authorize="isAnonymous()">
+                    <a th:href="@{/login}" class="me-1 btn btn-outline-dark mt-auto">Sign in</a>
+                </div>
+                <div sec:authorize="isAuthenticated()">
+                    <a th:href="@{/logout}" class="ms-1 me-3 btn btn-outline-dark mt-auto">Sign Out</a>
+                </div>
+            </div>
+        </div>
+        
+          <!-- Center elements -->
+
+          <!-- Right elements -->
+          <div class="col-lg-5 col-md-12 col-12 ">
+              <form class="form-inline my-2 my-lg-0" action="/search" method="get">
+                  <div class="input-group">
+                      <input type="text" class="form-control mr-2" name="name" placeholder="Search by name" aria-label="Search">
+                      <div class="input-group-append">
+                          <button class="btn btn-outline-secondary" type="submit">Search</button>
+                      </div>
+                  </div>
+              </form>
+          </div>
+          <!-- Right elements -->
+      </div>
+  </div>
+</div>
+<!-- Jumbotron -->
+
+<div class="container-fluid">
+  <div class="row ml-3 "  >
+    <!-- Right Sidebar -->
+    <div class="col-lg-2 sidebar" >
+      <form id="filterForm" method="post" action="/shop/category/">
+        <div class="filter-container">
+          <button class="btn btn-primary filter-btn" type="button" onclick="toggleCategoryDropdown()">Category</button>
+          <div class="dropdown-content ml-4" id="categoryDropdown">
+            <!-- Category options -->
+            <label th:each="category, iStat : ${categories}" class="form-check-label">
+              <input type="radio" class="form-check-input" th:id="'category' + ${category.id}" th:name="selectedCategory" th:value="${category.id}">
+              <span th:text="${category.name}" th:href="@{/shop/category/{id}(id=${category.id})}"></span>
+            </label>
+            <!-- Add more options as needed -->
+          </div>
+        </div>
+
+        <div class="filter-container">
+          <button class="btn btn-primary filter-btn" type="button" onclick="togglePriceFilter()">Price</button>
+          <div class="price-filter-content" id="priceFilter">
+            <!-- Price filter input fields -->
+            <div class="form-group">
+              <label for="minPrice">Min Price:</label>
+              <input type="text" class="form-control" id="minPrice" th:name="min">
+            </div>
+
+            <div class="form-group">
+              <label for="maxPrice">Max Price:</label>
+              <input type="text" class="form-control" id="maxPrice" th:name="max">
+            </div>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-success apply-btn" onclick="applyFilters()">Apply</button>
+      </form>
+    </div>
+
+    <!-- Main Content -->
+    <div class="col-lg-10 main-content ">
+      <!-- Your main content goes here -->
+      <h1>Main Content</h1>
+      <div style="align-items: center;">
+        <p th:if="${filterEmpty}" th:text="${filterEmpty}" class="alert alert-danger pt-5 pb-5 te" role="alert"></p>
+      </div>
+      <div class="col-lg-10 main-content" style="padding-left: 5rem;">
+        <div class="row ">
+          <div th:each="product, iterStat : ${products}" th:if="${iterStat.index} &lt; 8" class="col-lg-3 col-md-6 col-sm-6 d-flex">
+            <div class="card w-10 my-2 shadow-2-strong "  >
+              <a th:href="@{/productDetails/{id}(id=${product.id})}"> 
+                <img th:src="@{${'/productImages/' + product.imageName}}" th:alt="${product.name}" class="card-img-top" style="aspect-ratio: 1 / 1" />
+              </a>
+              <div class="card-body d-flex flex-column">
+                <h5 th:text="${product.name}" class="card-title">name</h5>
+                <p th:text="${product.price}" class="card-text">price</p>
+                <p class="text-black">Only <span th:text="${product.unitsInStock}"></span>stock</p>
+                <div class="card-footer d-flex align-items-end pt-3 px-0 pb-0 mt-auto">
+                  <a th:href="@{/cart/add/{id}(id = ${product.id})}" class="btn btn-primary shadow-0 me-1">Add to cart</a>
+                  <a th:href="@{your-wishlist-link}" class="btn btn-light border px-2 pt-2 icon-hover">
+                    <i class="fas fa-heart fa-lg text-secondary px-1"></i>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pagination -->
+        <div th:if="${totalPages > 1}">
+          <div class="row col-sm-10">
+            <div class="col-sm-2">
+            </div>
+            <div class="col-sm-10">
+              <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+                  <li class="page-item" th:each="i: ${#numbers.sequence(1, totalPages)}">
+                    <a th:if="${currentPage != i}" th:href="@{'/page/' + ${i}}" class="page-link">[[${i}]]</a>
+                    <span th:unless="${currentPage != i}" class="page-link">[[${i}]]</span>
+                  </li>
+                </ul>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Sidebar (Optional) -->
+      <!-- <div class="col-lg-2 sidebar"> -->
+        <!-- Your sidebar content goes here if needed -->
+      <!-- </div> -->
+    </div>
+  </div>
+</div>
+
+
+
+
+<script>
+  function toggleCategoryDropdown() {
+  var categoryDropdown = document.getElementById('categoryDropdown');
+  categoryDropdown.style.display = (categoryDropdown.style.display === 'block') ? 'none' : 'block';
+}
+
+function togglePriceFilter() {
+  var priceFilter = document.getElementById('priceFilter');
+  priceFilter.style.display = (priceFilter.style.display === 'block') ? 'none' : 'block';
+}
+
+function applyFilters() {
+  // Add logic to apply selected filters
+  console.log('Filters applied!');
+}
+
+</script>
+</body>
+</html>

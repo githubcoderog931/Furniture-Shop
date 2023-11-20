@@ -1,6 +1,8 @@
 package com.sheryians.major.service;
 
+import com.sheryians.major.domain.Category;
 import com.sheryians.major.domain.Product;
+import com.sheryians.major.repository.CategoryRepository;
 import com.sheryians.major.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -8,11 +10,15 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
 @Service
 public class ProductService {
+
+    @Autowired
+    CategoryRepository categoryRepository;
     @Autowired
     ProductRepository productRepository;
     public List<Product> getAllProduct() {
@@ -52,7 +58,16 @@ public class ProductService {
         return this.productRepository.findAll(pageable);
     }
 
-
+    public List<Product> findProductByPrice(Double min, Double max, int id){
+        List<Product> filteredByPrice = new ArrayList<>();
+        List<Product> products = productRepository.findAll();
+        for(Product product : products){
+            if(product.getPrice()>min && product.getPrice()<max && product.getCategory().getId()==id){
+                filteredByPrice.add(product);
+            }
+        }
+        return filteredByPrice;
+    }
 
 
 }

@@ -1,11 +1,10 @@
 package com.sheryians.major.controller;
 
-import com.sheryians.major.domain.Cart;
-import com.sheryians.major.domain.CartItem;
-import com.sheryians.major.domain.Product;
+import com.sheryians.major.domain.*;
 
 
-import com.sheryians.major.domain.User;
+import com.sheryians.major.repository.CategoryRepository;
+import com.sheryians.major.repository.ProductRepository;
 import com.sheryians.major.service.CartService;
 import com.sheryians.major.service.CategoryService;
 import com.sheryians.major.service.ProductService;
@@ -15,7 +14,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.security.Principal;
 import java.util.ArrayList;
@@ -25,10 +26,18 @@ import java.util.List;
 public class ShopController {
     @Autowired
     CategoryService categoryService;
+
+    @Autowired
+    CategoryRepository categoryRepository;
+
     @Autowired
     ProductService productService;
     @Autowired
     CartService cartService;
+
+    @Autowired
+    ProductRepository productRepository;
+
 
 
 
@@ -54,28 +63,30 @@ public class ShopController {
 
     //Pagination handler..
 
+    
     @GetMapping("/page/{pageNo}")
-    public String findPaginated(@PathVariable("pageNo") int pageNo, Model model){
+    public String findPaginated(@PathVariable("pageNo")  int pageNo, Model model){
         int pageSize = 4;
         Page<Product> page = productService.findPanginated(pageNo,pageSize);
         List<Product> products = page.getContent();
 
         model.addAttribute("currentPage",pageNo);
+        model.addAttribute("categories",categoryService.getAllCategory());
         model.addAttribute("totalPages",page.getTotalPages());
         model.addAttribute("totalItems",page.getTotalElements());
         model.addAttribute("products",products);
 
-        return "shop1";
+        return "shop";
     }
 
 
 
 
-    @GetMapping("/shop/category/{id}")
-    public String shopByCategory(Model model, @PathVariable int id,Principal principal){
+    @PostMapping("/shop/category/")
+    public String shopByCategory(@RequestParam("min") Double min, @RequestParam("max") Double max, Model model, @RequestParam("selectedCategory") int id, Principal principal, RedirectAttributes redirectAttributes){
         String username = principal.getName();
         Cart cart = cartService.getCartForUser(username);
-
+        Category category = categoryRepository.findById(id).orElse(null);
         if(username != null){
             if (cart != null){
                 List<CartItem> cartItemList =  cart.getCartItems();
@@ -83,11 +94,17 @@ public class ShopController {
 
             }
         }
+        List<Product> filtered = productService.findProductByPrice(min,max,id);
+        if(filtered.isEmpty()){
+            assert category != null;
+            redirectAttributes.addFlashAttribute("filterEmpty","!! There are no products under Category "+category.getName()+" and price between "+ min +" and "+max+".");
+            return "redirect:/shop";
+        }
+        model.addAttribute("products",filtered);
         model.addAttribute("categories",categoryService.getAllCategory());
-        model.addAttribute("products",productService.getAllProductsByCategoryId(id));
         model.addAttribute("cart",cart);
 
-        return "shop1";
+        return "shop";
     }
 
     @GetMapping("/shop/viewproduct/{id}")

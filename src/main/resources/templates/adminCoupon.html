@@ -22,6 +22,8 @@
     <div class="container">
         <h2 class="text-center mb-4">Coupon Management</h2>
         <div class="mb-4">
+            <p th:if="${couponDeleted}" th:text="${couponDeleted}" class="alert alert-success" role="alert"></p>
+            <p th:if="${couponAdded}" th:text="${couponAdded}" class="alert alert-success" role="alert"></p>
           <a th:href="@{/admin/addCoupon}" class="btn btn-primary  shadow-lg">Add Coupons</a>
         </div>
         <div class="row row-cols-1 row-cols-md-3 g-4">
@@ -32,7 +34,9 @@
                     <div class="card-body">
                         <h5 class="card-title">Coupon Code: <span th:text="${coupon.couponCode}"></span></h5>
                         <p class="card-text" >Discount: <span th:text="${coupon.discount}"></span>%</p>
+                        <p class="card-text">Coupon Stock : <span th:text="${coupon.couponStock}"></span></p>
                         <p class="card-text">Expiry Date: <span th:text="${coupon.expiryDate}"></span></p>
+                        <a  th:href="@{/admin/deleteCoupon/{id}(id=${coupon.id})}" class="btn btn-danger">Remove Coupon</a>
                     </div>
                 </div>
             </div>

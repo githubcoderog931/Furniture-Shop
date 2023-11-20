@@ -1,8 +1,9 @@
 package com.sheryians.major.controller;
 
+import com.sheryians.major.constants.OrderStatus;
 import com.sheryians.major.domain.*;
 import com.sheryians.major.repository.AddressRepository;
-import com.sheryians.major.repository.OrderStatusRepository;
+//import com.sheryians.major.repository.OrderStatusRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import com.sheryians.major.repository.OrderItemRepository;
 import com.sheryians.major.repository.OrderRepository;
@@ -29,8 +30,8 @@ public class UserProfileController {
     @Autowired
     UserService userService;
 
-    @Autowired
-    OrderStatusRepository orderStatusRepository;
+//    @Autowired
+//    OrderStatusRepository orderStatusRepository;
 
     @Autowired
     AddressRepository addressRepository;
@@ -116,13 +117,13 @@ public class UserProfileController {
         List<OrderItem> orderItems = orderItemRepository.findByOrders(orders);
         User user = userService.getUserByEmail(principal.getName());
         assert orders != null;
-        orders.setOrderStatus(orderStatusRepository.findById(5L).get());
-        String cancelStatus = orders.getOrderStatus().getStatus();
+        orders.setOrderStatus(OrderStatus.CANCELLED);
+//        String cancelStatus = orders.getOrderStatus().getStatus();
         Wallet wallet = user.getWallet();
        Double previousAmount = wallet.getWalletAmount();
         wallet.setWalletAmount(orders.getAmount()+previousAmount);
         for(OrderItem items : orderItems){
-            if (Objects.equals(orders.getOrderStatus().getStatus(), cancelStatus)){
+            if (orders.getOrderStatus()==OrderStatus.CANCELLED){
                 int quantity = items.getQuantity();
                 long stock = items.getProduct().getUnitsInStock();
                 items.getProduct().setUnitsInStock(quantity+stock);

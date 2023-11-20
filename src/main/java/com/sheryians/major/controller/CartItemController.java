@@ -11,7 +11,7 @@ import com.sheryians.major.repository.ProductRepository;
 import com.sheryians.major.repository.UserRepository;
 import com.sheryians.major.service.CartItemService;
 import com.sheryians.major.service.CartService;
-import com.sheryians.major.service.ProductService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -31,8 +31,7 @@ public class CartItemController {
 
     @Autowired
     CartItemService cartItemService;
-    @Autowired
-    ProductService productService;
+
 
     @Autowired
     CartItemRepository cartItemRepository;
