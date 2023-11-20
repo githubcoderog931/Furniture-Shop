@@ -62,18 +62,13 @@ public class DashboardController {
         SalesDto salesDataForOneYear = salesReportService.getSalesForOneYear();
         SalesDto getAllSales = salesReportService.getSalesForAllTime();
 
-        System.out.println(salesDataForOneDay);
-        System.out.println(salesDataForOneWeek);
-        System.out.println(salesDataForOneMonth);
-        System.out.println(salesDataForOneYear);
-        System.out.println(getAllSales);
+
 
         List<Referral> referral = referralRepository.findAll();
         Long referralCount = (long) referral.size();
         List<Referral> referralComplete = referralRepository.findByCompleted(true);
         Long successfullReferral = (long) referralComplete.size();
-        System.out.println(referralComplete);
-        System.out.println(referralCount);
+
 
         model.addAttribute("successfullReferral",successfullReferral);
         model.addAttribute("totalReferral",referralCount);
@@ -82,7 +77,7 @@ public class DashboardController {
         model.addAttribute("salesDataForOneMonth",salesDataForOneMonth);
         model.addAttribute("salesDataForOneYear",salesDataForOneYear);
         model.addAttribute("getAllSales",getAllSales);
-
+        System.out.println();
         return "dashboard";
     }
 
@@ -158,6 +153,13 @@ public class DashboardController {
             return "redirect:/admin/dashboard";
         }
     }
+
+
+    @GetMapping("/dashboard/all-time-sales")
+    public ResponseEntity<SalesDto> getAllTimeSales() {
+        SalesDto salesDataForOneYear = salesReportService.getSalesForOneYear();
+        return ResponseEntity.ok(salesDataForOneYear);
+    }
 //    @GetMapping("/generate-pdf")
 //    public void exportToPdf(HttpServletResponse response, HttpSession session,
 //                            HttpServletRequest request){
@@ -183,4 +185,6 @@ public class DashboardController {
         Map<OrderStatus, Long> statusCounts = salesReportService.getStatusCounts();
         return ResponseEntity.ok(statusCounts);
     }
+
+
 }

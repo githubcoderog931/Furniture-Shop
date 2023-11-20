@@ -96,7 +96,7 @@ public class InvoiceController {
 
 
 
-    @GetMapping("/csv")
+    @GetMapping("/salesReportCsv")
     public ResponseEntity<byte[]> generateCSVReport(Model model) {
         try {
             // Example data

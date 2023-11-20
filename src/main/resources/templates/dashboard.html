@@ -78,6 +78,28 @@
                     </div>
                 </div>
 
+                <div class="card card-opt  mt-3 shadow-lg" style="border-radius: 10px;">
+                    <div class="card-body">
+                        <p class="h5">Sales Report</p>
+                        <div class="card card-opt  mt-3 shadow-lg" style="border-radius: 10px;">
+                            <a th:href="@{/salesReportPdf}" class="nav-link active sidebar-text" >
+                            <div class="card-body">
+                                PDF
+                            </div>
+                        </a>
+                        </div>
+                        <div class="card card-opt  mt-3 shadow-lg" style="border-radius: 10px;">
+                            <a th:href="@{/salesReportCsv}" class="nav-link active sidebar-text" >
+                            <div class="card-body">
+                                EXCEL
+                            </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                
+
                 <!-- Add more options as needed -->
             </div>
         </nav>
@@ -195,7 +217,7 @@
         <!-- Chart for Daily Sales -->
         
 
-    <div class="row">
+    <!-- <div class="row">
         <div class="col-md-6 mb-4">
             <div class="card shadow-lg">
                 <div class="card-body">
@@ -215,7 +237,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> -->
 </div>
 </div>
 </main>
@@ -240,8 +262,9 @@
                 console.log('Received Data:', data);
 
                 // Update Chart for All Time Sales
-                updateChart('allTimeSalesChart', data.monthlyLabels, data.monthlyAmounts);
-                console.log(data.monthlyLabels)
+                // updateChart('allTimeSalesChart', data.dailyOrderCounts, data.dailyOrderCounts);
+               
+
 
                 // Update Chart for Daily Sales
                 updateChart('dailySalesChart', Object.keys(data.dailyOrderCounts), Object.values(data.dailyOrderCounts));
@@ -348,6 +371,41 @@
 
 
 </script>
+<script th:inline="javascript">
+    document.addEventListener("DOMContentLoaded", function() {
+        fetch('admin/dashboard/all-time-sales')
+            .then(response => response.json())
+            .then(data => {
+                // Create a basic static bar chart
+                var staticChartCtx = document.getElementById('allTimeSalesChart').getContext('2d');
+
+                var staticChart = new Chart(staticChartCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: data.monthlyLabel,
+                        datasets: [{
+                            label: 'All Time Sales',
+                            data: data.monthlyRevenue,
+                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching data:', error);
+            });
+    });
+</script>
+
 
 </body>
 </html>
