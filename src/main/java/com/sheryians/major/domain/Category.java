@@ -22,6 +22,8 @@ public class Category {
     @Column(name = "description")
     private String description;
 
+    @Column(name = "offer_discount")
+    public Integer offerDiscount;
 
     // define constructors
 

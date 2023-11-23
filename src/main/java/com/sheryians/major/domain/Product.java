@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-
+@Data
 @Entity
 @Table(name = "product")
 public	class	Product	{
@@ -48,6 +48,9 @@ public	class	Product	{
 
     @OneToMany(mappedBy = "product",cascade = CascadeType.ALL)
     private List<ProductImage> images = new ArrayList<>();
+
+    @Column(name = "offer_discount")
+    public Integer offerDiscount;
 
     // define constructors
 

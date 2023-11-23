@@ -8,6 +8,9 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap">
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
 </head>
 <body>
 <style>
@@ -18,7 +21,10 @@
 }
 .card-opt{
     background-color: #ffff;
-    color: #000000
+    color: #000000;
+}
+a{
+    text-decoration: none;
 }
 .card-opt:hover {
     background-color: rgb(44, 143, 64); 
@@ -36,6 +42,8 @@
                 <div class="card shadow-lg mb-2 " >
                     <div class="card-header">
                         <h5 class="mb-0">Admin Options</h5>
+                        <a href="/" class="btn btn-success mt-3">go home</a>
+
                     </div>
                 </div>
                 
@@ -62,7 +70,7 @@
 
                 <div class="card card-opt  mt-3 shadow-lg" style="border-radius: 10px;">
                     <div class="card-body">
-                        <a th:href="@{/admin/orders}" class="nav-link active sidebar-text" >Orders</a>
+                        <a  th:href="@{/admin/orders}" class="nav-link active sidebar-text" >Orders</a>
                     </div>
                 </div>
 
@@ -77,18 +85,29 @@
                         <a th:href="@{/admin/coupon}" class="nav-link active sidebar-text" >Coupon</a>
                     </div>
                 </div>
+                <!-- Add these input fields to your HTML for selecting start and end dates -->
+               
 
+                <!-- Add a container for displaying any response or error messages -->
+                <div id="responseContainer"></div>
+                <div class="card card-opt  mt-3 shadow-lg" style="border-radius: 10px;">
+                    <div class="card-body">
+                        <label for="startDate ">start Date:</label>
+                        <input class="form-control shadow-lg" type="date" id="startDate" name="startDate">
+        
+                        <label for="endDate">end Date:</label>
+                        <input class="form-control shadow-lg" type="date" id="endDate" name="endDate">
+        
+                        <!-- Add a button to trigger the PDF generation -->
+                        <button class="btn btn-outline-success mt-3 " onclick="generatePDF()">Generate PDF</button>
+                    </div>
+                
+                </div>
                 <div class="card card-opt  mt-3 shadow-lg" style="border-radius: 10px;">
                     <div class="card-body">
                         <p class="h5">Sales Report</p>
-                        <div class="card card-opt  mt-3 shadow-lg" style="border-radius: 10px;">
-                            <a th:href="@{/salesReportPdf}" class="nav-link active sidebar-text" >
-                            <div class="card-body">
-                                PDF
-                            </div>
-                        </a>
-                        </div>
-                        <div class="card card-opt  mt-3 shadow-lg" style="border-radius: 10px;">
+                        
+                        <div class="card   mt-3 shadow-lg btn-outline-success" style="border-radius: 10px;">
                             <a th:href="@{/salesReportCsv}" class="nav-link active sidebar-text" >
                             <div class="card-body">
                                 EXCEL
@@ -97,6 +116,7 @@
                         </div>
                     </div>
                 </div>
+                
 
                 
 
@@ -405,7 +425,36 @@
             });
     });
 </script>
+<script>
+    function generatePDF() {
+        var startDate = $("#startDate").val();
+        var endDate = $("#endDate").val();
 
+        // Check if both start and end dates are selected
+        if (!startDate || !endDate) {
+            $("#responseContainer").text("Please select both start and end dates.");
+            return;
+        }
+
+        // Make an AJAX request to your server with the selected dates
+        $.ajax({
+            type: "GET",
+            url: "/salesReportPDF",
+            data: {
+                startDate: startDate,
+                endDate: endDate
+            },
+            success: function(response) {
+                // Handle the successful response, e.g., display a link to download the PDF
+                window.location.href = "/salesReportPDF?startDate=" + startDate + "&endDate=" + endDate;            },
+            error: function(error) {
+                // Handle the error response
+                $("#responseContainer").text("Error generating PDF: " + error.responseText);
+            }
+        });
+    }
+
+</script>
 
 </body>
 </html>

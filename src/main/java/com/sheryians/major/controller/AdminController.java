@@ -88,6 +88,7 @@ public class AdminController {
         try {
             category.setName(name);
             category.setDescription(description);
+            category.setOfferDiscount(0);
             categoryService.saveCategory(category);
             model.addAttribute("successMessage", "Category added successfully.");
             return "redirect:/admin/categories";
@@ -127,11 +128,31 @@ public class AdminController {
         }
     }
 
+    @PostMapping("/admin/categories/offer/")
+    public String offersDiscount(@RequestParam("id") Integer id,@RequestParam("offer") Integer offer){
+        Category category = categoryRepository.findById(id).orElse(null);
+        assert category != null;
+        category.setOfferDiscount(offer);
+        categoryRepository.save(category);
+        return "redirect:/admin/categories";
+    }
+
+
+
+
     // show all the products
     @GetMapping("admin/products")
     public String product(Model model) {
         model.addAttribute("products", productService.getAllProduct());
         return "products";
+    }
+
+    @PostMapping("/admin/product/offer/")
+    public String productsDiscount(@RequestParam("id") Long id,@RequestParam("offer") int offer){
+        Product product = productRepository.findById(id).orElse(null);
+        product.setOfferDiscount(offer);
+        productRepository.save(product);
+        return "redirect:/admin/products";
     }
 
     // show add product page
@@ -197,6 +218,7 @@ public class AdminController {
         }
         product.setUnitsInStock(productDTO.getUnitsInStock());
         product.setImages(mList);
+        product.setOfferDiscount(0);
         productService.addProduct(product);
         model.addAttribute("successMessage", "Product added successfully.");
         return "redirect:/admin/products";

@@ -3,38 +3,53 @@ package com.sheryians.major.controller;
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
 import com.lowagie.text.Paragraph;
+import com.lowagie.text.Phrase;
+import com.lowagie.text.pdf.PdfPCell;
 import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfWriter;
+import com.opencsv.CSVWriter;
+import com.opencsv.bean.StatefulBeanToCsv;
+import com.opencsv.bean.StatefulBeanToCsvBuilder;
+import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvException;
+import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import com.sheryians.major.domain.Invoice;
 import com.sheryians.major.domain.Orders;
+import com.sheryians.major.domain.User;
+import com.sheryians.major.dto.OrderCsvDto;
 import com.sheryians.major.repository.OrderRepository;
 import com.sheryians.major.service.OrderService;
 import com.sheryians.major.service.PdfInvoiceService;
 import com.sheryians.major.service.SalesReportService;
 
+import com.sheryians.major.service.UserService;
+import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
+import javax.servlet.http.HttpServletResponse;
+import java.io.*;
 import java.security.Principal;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Controller
 public class InvoiceController {
 
     @Autowired
     private PdfInvoiceService pdfInvoiceService;
+
+    @Autowired
+    UserService userService;
 
     @Autowired
     private OrderService orderService;
@@ -65,67 +80,91 @@ public class InvoiceController {
         }
     }
 
-    public static void generateSalesReportPDF(String filename, String title, LocalDate startDate, LocalDate endDate,
-                                              int totalOrderCount, double totalRevenue, Map<LocalDate, Long> dailyOrderCount)
-            throws DocumentException, IOException {
+    @CrossOrigin
+    @GetMapping("/salesReportPDF")
+    public ResponseEntity<byte[]> generateSalesReportPDF(
+            @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            Model model) {
+        System.out.println(startDate);
+        System.out.println(endDate);
 
-        Document document = new Document();
-        PdfWriter.getInstance(document, new FileOutputStream(filename));
-        document.open();
+        try {
 
-        // Add title and other information to the PDF
-        document.add(new Paragraph(title));
-        document.add(new Paragraph("Date Range: " + startDate + " to " + endDate));
-        document.add(new Paragraph("Total Order Count: " + totalOrderCount));
-        document.add(new Paragraph("Total Revenue: $" + totalRevenue));
+            String title = "Sales Report";
+            int totalOrderCount = 100; // Replace with your actual data
+            double totalRevenue = 5000.0; // Replace with your actual data
+            Map<LocalDate, Long> dailyOrderCount = new HashMap<>(); // Replace with your actual data
 
-        // Add daily order counts to the PDF
-        PdfPTable table = new PdfPTable(2);
-        table.addCell("Date");
-        table.addCell("Daily Order Count");
+            byte[] pdfBytes = salesReportService.generateSalesReportPDFBytes(title, startDate, endDate,
+                    totalOrderCount, totalRevenue, dailyOrderCount);
 
-        for (Map.Entry<LocalDate, Long> entry : dailyOrderCount.entrySet()) {
-            table.addCell(entry.getKey().toString());
-            table.addCell(entry.getValue().toString());
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_PDF);
+            headers.setContentDisposition(ContentDisposition.builder("attachment").filename("salesReport.pdf").build());
+
+            return new ResponseEntity<>(pdfBytes, headers, HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace(); // Handle the exception appropriately
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
-        document.add(table);
-
-        document.close();
     }
+
 
 
 
     @GetMapping("/salesReportCsv")
-    public ResponseEntity<byte[]> generateCSVReport(Model model) {
-        try {
-            // Example data
-            LocalDate startDate = LocalDate.now().minusDays(30);
-            LocalDate endDate = LocalDate.now();
-            int totalOrderCount = 100;
-            double totalRevenue = 50000.0;
-            Map<LocalDate, Long> dailyOrderCount = Map.of(
-                    LocalDate.now().minusDays(30), 10L,
-                    LocalDate.now().minusDays(29), 15L,
-                    LocalDate.now().minusDays(28), 20L
-                    // ... additional daily order counts
-            );
+    public ResponseEntity<byte[]> generateCSVReport( Principal principal ,HttpServletResponse response, Model model)
+            throws CsvRequiredFieldEmptyException, CsvDataTypeMismatchException, IOException {
+        // Create a temporary file to store the CSV data
+        File tempFile = File.createTempFile("salesReport", ".csv");
+        List<Orders> orders = orderRepository.findAll();
+        try (Writer writer = new FileWriter(tempFile)) {
+            StatefulBeanToCsv<OrderCsvDto> csvWriter = new StatefulBeanToCsvBuilder<OrderCsvDto>(writer)
+                    .withQuotechar(CSVWriter.NO_QUOTE_CHARACTER)
+                    .withSeparator(CSVWriter.DEFAULT_SEPARATOR)
+                    .withOrderedResults(true)
+                    .build();
 
-            // Generate CSV report
-            byte[] csvBytes = salesReportService.generateSalesReportCSVBytes(
-                    "Sales Report for One Month", startDate, endDate, totalOrderCount, totalRevenue, dailyOrderCount);
+            List<OrderCsvDto> orderCsvDtoList = new ArrayList<>();
+            for (Orders order : orders) {
+                String productName = order.getOrderItems().stream()
+                        .map(orderItem -> orderItem.getProduct().getName())
+                        .collect(Collectors.joining());
 
-            // Set up response headers
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-            headers.setContentDispositionFormData("attachment", "SalesReportOneMonth.csv");
+                OrderCsvDto orderCsvDto = new OrderCsvDto();
+                orderCsvDto.setOrderId(String.valueOf(order.getId()));
+                orderCsvDto.setUsername(order.getUser().getEmail());
+                orderCsvDto.setTotalPrice((double) order.getAmount());
+                orderCsvDto.setOrderDate(order.getLocalDate());
+                orderCsvDto.setPaymentMode(String.valueOf(order.getPaymentMethod()));
+                orderCsvDto.setStatus(String.valueOf(order.getOrderStatus()));
+                orderCsvDto.setProductName(productName);
 
-            return new ResponseEntity<>(csvBytes, headers, HttpStatus.OK);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+                orderCsvDtoList.add(orderCsvDto);
+            }
+
+            csvWriter.write(orderCsvDtoList);
+
+            Double totalSales = salesReportService.calculateTotalSales(orders);
+            writer.write("TOTAL SALES," + totalSales + "\n");
+
+            int totalOrderCount = orders.size();
+            writer.write("TOTAL ORDER COUNT," + totalOrderCount + "\n");
         }
+
+        // Convert the temporary file to a byte array
+        byte[] bytes = FileUtils.readFileToByteArray(tempFile);
+
+        // Set the content type and headers
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.parseMediaType("text/csv"));
+        headers.setContentDispositionFormData("attachment", "salesReport.csv");
+
+        // Return the file as a byte array along with headers
+        return new ResponseEntity<>(bytes, headers, HttpStatus.OK);
     }
+
 
 
 }

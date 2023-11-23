@@ -1,5 +1,8 @@
 package com.sheryians.major.service;
 
+import com.lowagie.text.*;
+import com.lowagie.text.pdf.PdfPTable;
+import com.lowagie.text.pdf.PdfWriter;
 import com.opencsv.CSVWriter;
 import com.sheryians.major.constants.OrderStatus;
 import com.sheryians.major.domain.Orders;
@@ -13,10 +16,8 @@ import javax.validation.constraints.NotNull;
 import java.io.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -224,6 +225,76 @@ public class SalesReportService {
 
             csvWriter.flush();  // Flush the CSV writer to ensure data is written to the stream
             return outputStream.toByteArray();
+        }
+    }
+
+    public byte[] generateSalesReportPDFBytes(String title, LocalDate startDate, LocalDate endDate,
+                                              int totalOrderCount, double totalRevenue, Map<LocalDate, Long> dailyOrderCount)
+            throws DocumentException, IOException {
+
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        Document document = new Document();
+        PdfWriter.getInstance(document, byteArrayOutputStream);
+        document.open();
+
+        // Add metadata
+        document.addTitle("Sales Report");
+        document.addSubject("Sales Report");
+        document.addKeywords("sales, report, PDF");
+        document.addAuthor("Your Name");
+        document.addCreator("Your Application");
+
+        // Add content to the PDF
+        addSalesReportContent(document, title, startDate, endDate, totalOrderCount, totalRevenue, dailyOrderCount);
+
+        document.close();
+        return byteArrayOutputStream.toByteArray();
+    }
+
+    private void addSalesReportContent(Document document, String title, LocalDate startDate, LocalDate endDate,
+                                       int totalOrderCount, double totalRevenue, Map<LocalDate, Long> dailyOrderCount)
+            throws DocumentException {
+        List<Orders> orders = orderRepository.findAll();
+        // Add title
+        Paragraph titleParagraph = new Paragraph(title, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 18));
+        titleParagraph.setAlignment(Element.ALIGN_CENTER);
+        document.add(titleParagraph);
+
+        // Add date range
+        Paragraph dateRangeParagraph = new Paragraph("Date Range: " + startDate + " to " + endDate);
+        dateRangeParagraph.setAlignment(Element.ALIGN_CENTER);
+        document.add(dateRangeParagraph);
+
+        // Sort orders by date
+        orders.sort(Comparator.comparing(Orders::getLocalDate));
+
+        // Add total order count and revenue
+        document.add(new Paragraph("Total Order Count: " + orders.size()+"\n\n"));
+        totalRevenue = orders.stream().mapToDouble(Orders::getAmount).sum();
+        document.add(new Paragraph("Total Revenue: " + totalRevenue+"\n\n\n\n\n"));
+
+        // Add individual orders
+        document.add(new Paragraph("Individual Orders: "+"\n\n\n\n"));
+
+        String orderInfo = "Order ID   " +
+                "  User   " +
+                "  Order Date  " +
+                "  Total Price   "  +
+                "  Payment Method   "  +
+                "  Order Status   ";
+        document.add(new Paragraph(orderInfo));
+
+        for (Orders order : orders) {
+            if (order.getLocalDate() != null && order.getLocalDate().isAfter(startDate) && order.getLocalDate().isBefore(endDate)) {
+                orderInfo = order.getId() +"   "+
+                 order.getUser().getEmail() +"  "+
+                  order.getLocalDate() +"   "+
+                 order.getAmount() +"   "+
+                  order.getPaymentMethod() +"   " +
+                 order.getOrderStatus();
+                document.add(new Paragraph(orderInfo));
+
+            }
         }
     }
 
