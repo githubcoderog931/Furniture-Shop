@@ -4,6 +4,6 @@ RUN mvn clean package -DskipTests
 
 FROM openjdk:8-jdk-oracle
 COPY --from=build /target/major-0.0.1-SNAPSHOT.jar major.jar
-EXPOSE 8080
+EXPOSE 8000
 ENTRYPOINT ["java","-jar","demo.jar"]
 
