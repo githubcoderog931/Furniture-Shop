@@ -20,6 +20,7 @@ import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 import java.security.Principal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
@@ -31,6 +32,9 @@ public class PaymentController {
 
     @Autowired
     PaymentRepository paymentRepository;
+
+    @Autowired
+    DiscountService discountService;
 
     @Autowired
      UserRepository userRepository;
@@ -82,6 +86,9 @@ public class PaymentController {
 
     double TotalPriceAfterDiscount=0;
     double totalPrice =0;
+
+    Double newTotal = 0.0;
+    Double afterDiscount;
 
     @PostMapping("/user/couponApply")
     public String userApplyCoupon( @RequestParam("couponCode") String couponCode, Model model, Principal principal, RedirectAttributes redirectAttributes){
@@ -169,13 +176,10 @@ public class PaymentController {
         Address address = addressService.findById(selectedAddress);
         Wallet wallet = user.getWallet();
 
-
         if(TotalPriceAfterDiscount!=0){
             totalPrice = TotalPriceAfterDiscount;
-            System.out.println(totalPrice);
         }else{
             totalPrice = cart.calculateCartTotal();
-            System.out.println(totalPrice);
         }
 
         if (wallet.getWalletAmount() > totalPrice) {
@@ -185,14 +189,13 @@ public class PaymentController {
             Orders order = new Orders();
             order.setOrderStatus(OrderStatus.ORDER);
             order.setUser(user);
-            order.setAmount((int) totalPrice);
-            order.setLocalDate(LocalDate.now());
+            order.setAmount(totalPrice);
+            order.setLocalDate(LocalDateTime.now());
 //        order.getOrderItems(cartItems);
             order.setAddress(address);
             order.setPaymentMethod(PaymentMethod.WALLET);
             orderRepository.save(order);
             List<OrderItem> orderItems = orderItemService.moveItemsFromCartToOrder( principal.getName(),order);
-            System.out.println("ngeeeeeeeeeeeeee" + wallet.getWalletAmount() + "" + totalPrice);
             return "redirect:/";
         } else {
             System.out.println("your wallet doesn't have enough money");
@@ -206,14 +209,9 @@ public class PaymentController {
     public String submitOrder(@RequestParam Long selectedAddress, Principal principal, Model model, RedirectAttributes redidAttrs){
 
         User user = userService.getUserByEmail(principal.getName());
-
         Cart cart = cartService.getCartForUser(principal.getName());
         Address address = addressService.findById(selectedAddress);
-        List<CartItem> cartItems = cartItemService.getAllItems(cart);
-        CartItem cartItem = cartItems.get(0);
-
-
-        System.out.println(totalPrice);
+        List<CartItem> allCartItems = cartItemService.getAllItems(cart);
 
         if(TotalPriceAfterDiscount!=0){
             totalPrice = TotalPriceAfterDiscount;
@@ -222,8 +220,23 @@ public class PaymentController {
             totalPrice = cart.calculateCartTotal();
             System.out.println(totalPrice+"else1");
         }
+        Double discountPrice = 0.0;
+        Double total = 0.0;
+        for (CartItem cartItems : allCartItems){
+            if (cartItems.getProduct().getOfferDiscount()!=0){
+                discountPrice = discountService.applyDiscount(cartItems.getProduct().getPrice(), cartItems.getProduct().getOfferDiscount());
+                total = discountPrice + total;
+            }
+            if (cartItems.getProduct().getCategory().getOfferDiscount()!=0){
+                discountPrice = discountService.applyDiscount(cartItems.getProduct().getPrice(), cartItems.getProduct().getCategory().getOfferDiscount());
+                total = discountPrice + total;
+            }
 
-        System.out.println(totalPrice);
+        }
+        System.out.println("typo"+total);
+
+
+
 
 
 
@@ -262,22 +275,20 @@ public class PaymentController {
         }
 
 
-        System.out.println(totalPrice);
 
 
         Orders order = new Orders();
         order.setOrderStatus(OrderStatus.ORDER);
         order.setUser(user);
-        order.setAmount((int) totalPrice);
-        order.setLocalDate(LocalDate.now());
+        order.setAmount(cart.calculateCartTotal());
+        order.setLocalDate(LocalDateTime.now());
 //        order.getOrderItems(cartItems);
         order.setAddress(address);
         order.setPaymentMethod(PaymentMethod.PAY_ON_DELIVERY);
-        System.out.println(totalPrice);
+        order.setDiscountAmount(total);
         orderRepository.save(order);
 
         List<OrderItem> orderItems = orderItemService.moveItemsFromCartToOrder( principal.getName(),order);
-        System.out.println(orderItems);
 
         return "redirect:/";
     }
@@ -338,8 +349,8 @@ public class PaymentController {
         order.setOrderStatus(OrderStatus.ORDER);
 
         order.setUser(user);
-        order.setAmount((int) totalPrice);
-        order.setLocalDate(LocalDate.now());
+        order.setAmount(totalPrice);
+        order.setLocalDate(LocalDateTime.now());
 //        order.getOrderItems(cartItems);
         order.setAddress(address);
         order.setPaymentMethod(PaymentMethod.RAZORPAY);

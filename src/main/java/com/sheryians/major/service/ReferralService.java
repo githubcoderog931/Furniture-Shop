@@ -38,11 +38,11 @@ public class ReferralService {
     }
 
     // Method to track referrals for a user
-    public List<Referral> getReferrals(String username) {
+    public Referral getReferrals(String username) {
         User referrer = userService.findByUsername(username);
 
         // Retrieve completed referrals for the referrer
-        return referralRepository.findByReferrerAndCompleted(referrer, true);
+        return  referralRepository.findByReferrerAndCompleted(referrer, true);
     }
 
     // Method to handle a successful referral

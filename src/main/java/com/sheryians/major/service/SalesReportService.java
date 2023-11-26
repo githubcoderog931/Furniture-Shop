@@ -1,7 +1,6 @@
 package com.sheryians.major.service;
 
 import com.lowagie.text.*;
-import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfWriter;
 import com.opencsv.CSVWriter;
 import com.sheryians.major.constants.OrderStatus;
@@ -14,8 +13,11 @@ import org.springframework.stereotype.Service;
 
 import javax.validation.constraints.NotNull;
 import java.io.*;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -28,8 +30,8 @@ public class SalesReportService {
 
     public List<Orders> getOrderByTimePeriod(TimePeriod timePeriod){
 
-        LocalDate startDate;
-        LocalDate endDate = LocalDate.now();
+        LocalDateTime startDate;
+        LocalDateTime endDate = LocalDateTime.now();
 
         switch (timePeriod){
             case DAILY -> {
@@ -51,19 +53,19 @@ public class SalesReportService {
         return orderRepository.findByLocalDateBetween(startDate,endDate);
     }
 
-    public List<Orders> findByOrderDateBetween(LocalDate startDate, LocalDate endDate){
+    public List<Orders> findByOrderDateBetween(LocalDateTime startDate, LocalDateTime endDate){
         return orderRepository.findByLocalDateBetween(startDate,endDate);
     }
 
     public SalesDto getSalesForOneDay(){
 
-        LocalDate yesterday = LocalDate.now();
-        LocalDate today = LocalDate.now();
+        LocalDateTime yesterday = LocalDateTime.now();
+        LocalDateTime today = LocalDateTime.now();
 
         List<Orders> ordersWithInOneDay = orderRepository.findByLocalDateBetween(yesterday,today).stream().filter(orders ->
                 orders.getOrderStatus()!= OrderStatus.CANCELLED).toList();
 
-        Map<LocalDate, Long> dailyOrderCount = ordersWithInOneDay.stream()
+        Map<LocalDateTime, Long> dailyOrderCount = ordersWithInOneDay.stream()
                 .collect(Collectors.groupingBy(Orders::getLocalDate,Collectors.counting()));
 
         Double totalRevenue = ordersWithInOneDay.stream().mapToDouble(Orders::getAmount).sum();
@@ -74,22 +76,22 @@ public class SalesReportService {
 
 
     @NotNull
-    private static SalesDto getDto(LocalDate yesterday,
-                                   LocalDate today, Double totalRevenue, Integer totalOrderCount,Map<LocalDate, Long> dailyOrderCount) {
+    private static SalesDto getDto(LocalDateTime yesterday,
+                                   LocalDateTime today, Double totalRevenue, Integer totalOrderCount,Map<LocalDateTime, Long> dailyOrderCount) {
         return getSalesDto(yesterday, today, totalRevenue, totalOrderCount, dailyOrderCount);
 
     }
 
     public SalesDto getSalesForOneMonth() {
-        LocalDate oneMonthAgo = LocalDate.now().minusMonths(1);
-        LocalDate today = LocalDate.now();
+        LocalDateTime oneMonthAgo = LocalDateTime.now().minusMonths(1);
+        LocalDateTime today = LocalDateTime.now();
 
         List<Orders> ordersWithInOneMonth = orderRepository.findByLocalDateBetween(oneMonthAgo,today).stream().filter(order ->
                 order.getOrderStatus()!=OrderStatus.CANCELLED).toList();
 
         Double totalRevenue = ordersWithInOneMonth.stream().mapToDouble(Orders::getAmount).sum();
         Integer totalOrderCount = ordersWithInOneMonth.size();
-        Map<LocalDate,Long> dailyOrderCount = ordersWithInOneMonth.stream()
+        Map<LocalDateTime,Long> dailyOrderCount = ordersWithInOneMonth.stream()
                 .collect(Collectors.groupingBy(Orders::getLocalDate,Collectors.counting()));
 
         return getSalesDto(oneMonthAgo, today, totalRevenue, totalOrderCount, dailyOrderCount);
@@ -97,7 +99,7 @@ public class SalesReportService {
     }
 
     @NotNull
-    private static SalesDto getSalesDto(LocalDate oneMonthAgo, LocalDate today, Double totalRevenue, Integer totalOrderCount, Map<LocalDate, Long> dailyOrderCount) {
+    private static SalesDto getSalesDto(LocalDateTime oneMonthAgo, LocalDateTime today, Double totalRevenue, Integer totalOrderCount, Map<LocalDateTime, Long> dailyOrderCount) {
         SalesDto salesDto = new SalesDto();
         salesDto.setStartDate(oneMonthAgo);
         salesDto.setEndDate(today);
@@ -109,15 +111,15 @@ public class SalesReportService {
 
     public SalesDto getSalesForOneYear() {
 
-        LocalDate oneYearAgo = LocalDate.now().minusYears(1);
-        LocalDate today = LocalDate.now();
+        LocalDateTime oneYearAgo = LocalDateTime.now().minusYears(1);
+        LocalDateTime today = LocalDateTime.now();
 
         List<Orders> ordersWithInOneYear = orderRepository.findByLocalDateBetween(oneYearAgo,today).stream().filter(order ->
                 order.getOrderStatus()!=OrderStatus.CANCELLED).toList();
 
         Double totalRevenue = ordersWithInOneYear.stream().mapToDouble(Orders::getAmount).sum();
         Integer totalOrderCount = ordersWithInOneYear.size();
-        Map<LocalDate,Long> dailyOrderCount = ordersWithInOneYear.stream()
+        Map<LocalDateTime,Long> dailyOrderCount = ordersWithInOneYear.stream()
                 .collect(Collectors.groupingBy(Orders::getLocalDate,Collectors.counting()));
 
         return getSalesDto(oneYearAgo, today, totalRevenue, totalOrderCount,dailyOrderCount);
@@ -132,7 +134,7 @@ public class SalesReportService {
 
         DateTimeFormatter monthFormatter = DateTimeFormatter.ofPattern("MMM yyyy");
         for (Orders order : totalSales){
-            LocalDate orderDate = order.getLocalDate();
+            LocalDateTime orderDate = order.getLocalDate();
             String monthYear = orderDate.format(monthFormatter);
             double totalPrice = order.getAmount();
 
@@ -177,14 +179,14 @@ public class SalesReportService {
 
     public SalesDto getSalesForOneWeek() {
 
-        LocalDate oneWeekAgo = LocalDate.now().minusWeeks(1);
-        LocalDate today = LocalDate.now();
+        LocalDateTime oneWeekAgo = LocalDateTime.now().minusWeeks(1);
+        LocalDateTime today = LocalDateTime.now();
 
         List<Orders> ordersWithInOneWeek = orderRepository.findByLocalDateBetween(oneWeekAgo,today).
                 stream().filter(order ->
                         order.getOrderStatus()!=OrderStatus.CANCELLED).toList();
 
-        Map<LocalDate,Long> dailyOrderCount = ordersWithInOneWeek.stream()
+        Map<LocalDateTime,Long> dailyOrderCount = ordersWithInOneWeek.stream()
                 .collect(Collectors.groupingBy(Orders::getLocalDate,Collectors.counting()));
 
         Double totalRevenue = ordersWithInOneWeek.stream().mapToDouble(Orders::getAmount).sum();
@@ -193,6 +195,26 @@ public class SalesReportService {
         return getSalesDto(oneWeekAgo, today, totalRevenue, totalOrderCount, dailyOrderCount);
 
     }
+
+
+
+//    public List<Orders> getWeeklySales() {
+//
+//        LocalDateTime now = LocalDateTime.now();
+//        LocalDateTime startOfWeek = now.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+//        LocalDateTime endOfWeek = now.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
+//            List<Orders> orderList = orderRepository.findByLocalDateBetween(startOfWeek, endOfWeek);
+//            for(Orders orders : orderList){
+//
+//            }
+//            return ""
+//
+//
+//
+//
+//    }
+
+
 
     public Double calculateTotalSales(List<Orders> orders) {
 
@@ -228,8 +250,8 @@ public class SalesReportService {
         }
     }
 
-    public byte[] generateSalesReportPDFBytes(String title, LocalDate startDate, LocalDate endDate,
-                                              int totalOrderCount, double totalRevenue, Map<LocalDate, Long> dailyOrderCount)
+    public byte[] generateSalesReportPDFBytes(String title, LocalDateTime startDate, LocalDateTime endDate,
+                                              int totalOrderCount, double totalRevenue, Map<LocalDateTime, Long> dailyOrderCount)
             throws DocumentException, IOException {
 
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
@@ -251,8 +273,8 @@ public class SalesReportService {
         return byteArrayOutputStream.toByteArray();
     }
 
-    private void addSalesReportContent(Document document, String title, LocalDate startDate, LocalDate endDate,
-                                       int totalOrderCount, double totalRevenue, Map<LocalDate, Long> dailyOrderCount)
+    private void addSalesReportContent(Document document, String title, LocalDateTime startDate, LocalDateTime endDate,
+                                       int totalOrderCount, double totalRevenue, Map<LocalDateTime, Long> dailyOrderCount)
             throws DocumentException {
         List<Orders> orders = orderRepository.findAll();
         // Add title

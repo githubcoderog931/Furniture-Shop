@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+  <script src="https://kit.fontawesome.com/3e855dbfc6.js" crossorigin="anonymous"></script>
+  <style>
+     .scrollable {
+       overflow-y: auto;
+       scrollbar-width: thin;
+       scrollbar-color: transparent transparent; /* Hide scrollbar */
+       max-height: 100%;
+     }
+   
+     .scrollable::-webkit-scrollbar {
+       width: 8px; /* Adjust scrollbar width as needed */
+     }
+   
+     .scrollable::-webkit-scrollbar-thumb {
+       background-color: transparent; /* Hide scrollbar thumb */
+     }
+   
+     .scrollable::-webkit-scrollbar-track {
+       background-color: transparent; /* Hide scrollbar track */
+     }
+   </style>
+   
+</head>
+<body>
+     <header>
+          <!-- Jumbotron -->
+          <div class="p-3 text-center bg-white border-bottom">
+              <div class="container">
+                  <div class="row gy-3">
+                      <!-- Left elements -->
+                      <div class="col-lg-2 col-sm-4 col-4">
+                          <a href="https://mdbootstrap.com/" target="_blank" class="float-start">
+                              <img th:src="@{/images/logo.png}" src="../../static/images/logo.png" width="auto" height="50" />
+                          </a>
+                      </div>
+                      <!-- Left elements -->
+      
+                      <!-- Center elements -->
+                      <div class="order-lg-last col-lg-5 col-sm-8 col-8">
+                          <div class="d-flex float-end">
+                              <a href="" class="btn btn-outline-primary me-2" th:href="@{/user}">go back</a>
+                              <a href="#" class="me-1 border rounded py-1 px-3 nav-link d-flex align-items-center" target="_blank"> <i class="fas fa-heart m-1 me-md-2"></i><p class="d-none d-md-block mb-0">Wishlist</p> </a>
+                              <a class="btn btn-outline-dark mt-auto" th:href="@{/cart}" href="#">Cart
+                                  <i class="bi-cart-fill me-1"></i>
+                                  <span th:text="${cartCount}" class="badge bg-dark text-white ms-1 rounded-pill">0</span>
+                              </a>
+                              <div sec:authorize="isAnonymous()"><a th:href="@{/login}" class="me-1 btn btn-outline-dark mt-auto">Sign in</a></div>
+                              <div sec:authorize="isAuthenticated()"><a th:href="@{/logout}" class="ms-1 me-3 btn btn-outline-dark mt-auto">Sign Out</a></div>
+                          </div>
+                      </div>
+                      <!-- Center elements -->
+      
+                      <!-- Right elements -->
+                      <div class="col-lg-5 col-md-12 col-12 ">
+                          <form class="form-inline my-2 my-lg-0" action="/search" method="get">
+                              <div class="input-group">
+                                  <input type="text" class="form-control mr-2" name="name" placeholder="Search by name" aria-label="Search">
+                                  <div class="input-group-append">
+                                      <button class="btn btn-outline-secondary" type="submit">Search</button>
+                                  </div>
+                              </div>
+                          </form>
+                      </div>
+                      <!-- Right elements -->
+                  </div>
+              </div>
+          </div>
+          <!-- Jumbotron -->
+     <div class="container" style="height: 3rem;">
+
+     </div>
+  <div class="container">
+     <form th:action="@{/chat/form}" method="post">
+          <div class="row">     
+          <div class="col-6 bg-dark-subtle bg-opacity-25" style=" height: 100vh;">
+               <div class="row bg-black h-75 p-2 rounded-2" style=" background-image: linear-gradient(to right, #1b41ff, #975dce);color: #c10ffc;padding: 20px;" >
+                    <div class=" h-100 rounded-3 scrollable" style=" background-image: linear-gradient(to top, #1b41ff, #83a4ff);color: #fff;padding: 20px;">
+                         <p class="font-monospace">Enter your friend's email</p>
+                         <div class="row bg-light rounded-bottom-4 rounded-end-4 p-2" style="height: 4rem; background-image: linear-gradient(to right, #be1bff, #ffffff);color: #fff;padding: 20px;">
+                              <input type="text" name="receiverEmail" class="form-control border-0">
+                         </div>
+                         <div th:each="chat : ${send}">
+                              <div class="mt-4 row bg-light rounded-bottom-4 rounded-end-3 me-5" th:if="${received}" style="display: inline-block; height: auto; background-image: linear-gradient(to left bottom, #be1bff, #ffffff); color: #fff; padding: 15px;">
+                                  <div class="bg-light col rounded-bottom-3 rounded-end-3 bg-opacity-75" style="overflow-wrap: break-word;">
+                                      <p class="text-dark" th:text="${chat.chatContent}"></p>
+                                  </div>
+                                  <p class="text-secondary">to : <span class="font-monospace text-dark d-inline" th:text="${chat.toWhome}">hey</span></p>
+                              </div>
+                          </div>
+
+                            
+                         
+                                                    
+                    </div>     
+               </div>
+               <div class="row bg-dark bg-opacity-75 h-25 p-4 rounded-start-3 rounded-bottom-3" style=" background-image: linear-gradient(to left, #1b41ff, #83a4ff);color: #fff;padding: 20px;">
+                    <div class="col-9 bg-secondary bg-opacity-75 rounded-1" style=" background-image: linear-gradient(to top, #1b41ff, #975dce);color: #c10ffc;padding: 20px;">
+                         <input type="text" name="chatContent" th:value="${referral}" class=" form-control">
+                         <p class="text-sm-end font-monospace mt-3 text-black">share with your friends</p>
+                    </div>
+                    <div class="col-3  pt-4 ps-3 bg-opacity-75 rounded-1" style="background-image: linear-gradient(to top, #1b41ff, #975dce);color: #c10ffc;padding: 20px;">
+                         <button type="submit" class="btn btn-link" style="color: rgb(240, 186, 255);">
+                              <i class="d-inline fa-solid fa-paper-plane fa-2xl"></i>
+                          </button>
+                    </div>
+               </div>
+          </div>
+
+
+          <!-- second col -->
+               <div class="col-6 bg-dark-subtle bg-opacity-25"  style="height: 100vh;">
+                    <div class="col  bg-dark-subtle bg-opacity-25" style="height: 100vh;">
+                         <div class="row bg-black h-100 p-2 rounded-start-3 rounded-end-0" style="background-image: linear-gradient(to right, #1b41ff, #975dce);color: #c10ffc;padding: 20px;" >
+                              <div class=" h-100 rounded-3 scrollable" style=" background-image: linear-gradient(to top, #1b41ff, #83a4ff);color: #fff;padding: 20px;">
+                                   <h5>Replays : </h5>
+                                   <div th:each="chat : ${received}">
+                                        <div class="mt-4 row bg-light rounded-bottom-4 rounded-end-3 me-5" th:if="${received}" style="display: inline-block; height: auto; background-image: linear-gradient(to left bottom, #be1bff, #ffffff); color: #fff; padding: 15px;">
+                                            <div class="bg-light col rounded-bottom-3 rounded-end-3 bg-opacity-75" style="overflow-wrap: break-word;">
+                                                <p class="text-dark" th:text="${chat.chatContent}"></p>
+                                            </div>
+                                            <p class="text-secondary">from : <span class="font-monospace text-dark d-inline" th:text="${chat.toWhome}">hey</span></p>
+                                        </div>
+                                    </div>
+                                    
+                              </div>     
+                         </div>
+                    </div>
+               </div>
+          </div>
+     </form>
+  </div>
+</body>
+</html>
+

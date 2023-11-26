@@ -173,7 +173,7 @@
                 <div th:each="product, iterStat : ${products}" th:if="${iterStat.index} &lt; 8" class="col-lg-3 col-md-6 col-sm-6 d-flex">
                     <div class="card w-100 my-2 shadow-2-strong">
                        <div class="col-12 " style=" display: flex; justify-content: end;">
-                         <b class="text-bg-warning m-1 ps-2 pe-2 rounded-2">50%<i class="fa-solid fa-tag fa-beat-fade pt-2 pb-2 ps-2" style="color: #4f5254;"></i></b>
+                         <b class="text-bg-warning m-1 ps-2 pe-2 rounded-2" th:if="${product.offerDiscount!=0}"><span th:text="${product.offerDiscount}"></span>%<i class="fa-solid fa-tag fa-beat-fade pt-2 pb-2 ps-2" style="color: #4f5254;"></i></b>
                        </div>
                         <a th:href="@{/productDetails/{id}(id=${product.id})}"><img th:src="@{${'/productImages/' + product.imageName}}" th:alt="${product.name}" class="card-img-top" style="aspect-ratio: 1 / 1" /></a>
 
@@ -183,8 +183,8 @@
                             <p class="text-black">Only <span th:text="${product.unitsInStock}"></span> pieces left</p>
                             <div class="card-footer d-flex align-items-end pt-3 px-0 pb-0 mt-auto">
                                 <a th:href="@{/cart/add/{id}(id = ${product.id})}" class="btn btn-primary shadow-0 me-1">Add to cart</a>
-                                <a th:href="@{your-wishlist-link}" class="btn btn-light border px-2 pt-2 icon-hover">
-                                    <i class="fa-solid fa-heart fa-bounce" style="color: #ff2949;"></i>
+                                <a th:href="@{your-wishlist-link}" class="btn btn-outline-danger border px-2 pt-2 icon-hover">
+                                    <i class="fa-solid fa-heart fa-bounce" style="color: #ff0000;"></i>
                                 </a>
                             </div>
                         </div>

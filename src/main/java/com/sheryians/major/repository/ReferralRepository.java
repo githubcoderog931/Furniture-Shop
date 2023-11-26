@@ -9,7 +9,7 @@ import java.util.List;
 
 @Repository
 public interface ReferralRepository extends JpaRepository<Referral, Long> {
-    List<Referral> findByReferrerAndCompleted(User referrer, boolean b);
+    Referral findByReferrerAndCompleted(User referrer, boolean b);
 
     boolean existsByReferrerAndReferred(User referrer, User referred);
 

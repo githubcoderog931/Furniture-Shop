@@ -7,6 +7,7 @@ import com.sheryians.major.constants.PaymentMethod;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -27,9 +28,9 @@ public class Orders {
     private Long id;
 
     @Column(name = "amount")
-    private int amount;
+    private Double amount;
 
-
+    private Double discountAmount;
 
     @ManyToOne
     @JoinColumn(name = "user_id_fk")
@@ -44,7 +45,7 @@ public class Orders {
     private List<OrderItem> orderItems;
 
     @Column(name = "order_placed_date")
-    private LocalDate localDate;
+    private LocalDateTime localDate;
 
     @Enumerated(EnumType.STRING)
     private OrderStatus orderStatus;
@@ -54,9 +55,9 @@ public class Orders {
     @Enumerated(EnumType.STRING)
     private PaymentMethod paymentMethod;
 
-    private LocalDate shippingDate;
-    private LocalDate packingDate;
-    private LocalDate deliveryDate;
+    private LocalDateTime shippingDate;
+    private LocalDateTime packingDate;
+    private LocalDateTime deliveryDate;
 
 
 

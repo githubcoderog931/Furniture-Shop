@@ -4,6 +4,7 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 @Getter
 @Setter
@@ -16,7 +17,7 @@ public class Invoice {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private int amount;
+    private Double amount;
     private String userName;
 
     @OneToOne
@@ -30,12 +31,12 @@ public class Invoice {
     @OneToMany(mappedBy = "orders", cascade = CascadeType.ALL)
     @Column(name = "orders_id_fk")
     private List<OrderItem> orderItems;
-    private LocalDate orderPlacedDate;
+    private LocalDateTime orderPlacedDate;
     private String orderStatus;
     private String paymentMethod;
-    private LocalDate shippingDate;
-    private LocalDate packingDate;
-    private LocalDate deliveryDate;
+    private LocalDateTime shippingDate;
+    private LocalDateTime packingDate;
+    private LocalDateTime deliveryDate;
 
     // Add getters and setters
 

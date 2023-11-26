@@ -49,8 +49,11 @@ public class OrderService {
     }
 
 
+    public List<Orders> getAllOrderDate() {
+        return orderRepository.findAll();
+    }
 
-
-
-
+    public List<Orders> getAllOrderPrice() {
+        return orderRepository.findAll();
+    }
 }

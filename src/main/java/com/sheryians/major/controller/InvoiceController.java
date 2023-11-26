@@ -35,6 +35,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.security.Principal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -83,8 +84,8 @@ public class InvoiceController {
     @CrossOrigin
     @GetMapping("/salesReportPDF")
     public ResponseEntity<byte[]> generateSalesReportPDF(
-            @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-            @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDateTime startDate,
+            @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDateTime endDate,
             Model model) {
         System.out.println(startDate);
         System.out.println(endDate);
@@ -94,7 +95,7 @@ public class InvoiceController {
             String title = "Sales Report";
             int totalOrderCount = 100; // Replace with your actual data
             double totalRevenue = 5000.0; // Replace with your actual data
-            Map<LocalDate, Long> dailyOrderCount = new HashMap<>(); // Replace with your actual data
+            Map<LocalDateTime, Long> dailyOrderCount = new HashMap<>(); // Replace with your actual data
 
             byte[] pdfBytes = salesReportService.generateSalesReportPDFBytes(title, startDate, endDate,
                     totalOrderCount, totalRevenue, dailyOrderCount);

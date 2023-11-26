@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Send Email</title>
+</head>
+<body>
+    <h2>Send Email</h2>
+
+    <!-- Display success message if present -->
+    <div th:if="${successMessage}" class="alert alert-success" role="alert">
+        <p th:text="${successMessage}"></p>
+    </div>
+
+    <!-- Email form -->
+    <form th:action="@{/send-email}" method="post">
+        <div>
+            <label for="senderEmail">Sender Email:</label>
+            <input type="text" id="senderEmail" name="senderEmail" required>
+        </div>
+        <div>
+            <label for="receiverEmail">Receiver Email:</label>
+            <input type="text" id="receiverEmail" name="receiverEmail" required>
+        </div>
+        <div>
+            <label for="subject">Subject:</label>
+            <input type="text" id="subject" name="subject" required>
+        </div>
+        <div>
+            <label for="body">Body:</label>
+            <textarea id="body" name="body" required></textarea>
+        </div>
+        <button type="submit">Send Email</button>
+    </form>
+</body>
+</html>

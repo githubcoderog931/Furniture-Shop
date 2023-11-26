@@ -25,6 +25,7 @@ import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.security.Principal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -131,8 +132,8 @@ public class DashboardController {
         }
     }
     @PostMapping("/dashboard/sales/byDate")
-    public String orderByDates(@RequestParam(value = "startDate",required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
-                               @RequestParam(value = "endDate",required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate,
+    public String orderByDates(@RequestParam(value = "startDate",required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDateTime startDate,
+                               @RequestParam(value = "endDate",required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDateTime endDate,
                                HttpSession session, Model model){
 
         if (startDate != null && endDate != null) {
@@ -185,6 +186,8 @@ public class DashboardController {
         Map<OrderStatus, Long> statusCounts = salesReportService.getStatusCounts();
         return ResponseEntity.ok(statusCounts);
     }
+
+
 
 
 }

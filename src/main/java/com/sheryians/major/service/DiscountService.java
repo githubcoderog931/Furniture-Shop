@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class DiscountService {
 
+
     public Double applyDiscount(Double totalPrice, Integer discount) {
         // Ensure discount is not null and is within a valid range
         if (discount == null || discount < 0 || discount > 100) {

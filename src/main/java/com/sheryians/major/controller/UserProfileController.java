@@ -2,11 +2,9 @@ package com.sheryians.major.controller;
 
 import com.sheryians.major.constants.OrderStatus;
 import com.sheryians.major.domain.*;
-import com.sheryians.major.repository.AddressRepository;
+import com.sheryians.major.repository.*;
 //import com.sheryians.major.repository.OrderStatusRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import com.sheryians.major.repository.OrderItemRepository;
-import com.sheryians.major.repository.OrderRepository;
 import com.sheryians.major.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -18,6 +16,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 @Controller
@@ -25,10 +24,16 @@ import java.util.Objects;
 public class UserProfileController {
 
     // define autowired
+
+    @Autowired
+    ReferralRepository referralRepository;
     @Autowired
     AddressService addressService;
     @Autowired
     UserService userService;
+
+    @Autowired
+    ChatService chatService;
 
 //    @Autowired
 //    OrderStatusRepository orderStatusRepository;
@@ -37,7 +42,15 @@ public class UserProfileController {
     AddressRepository addressRepository;
 
     @Autowired
+    ReferralService referralService;
+
+
+
+    @Autowired
     OrderRepository orderRepository;
+
+    @Autowired
+    ChatRepository chatRepository;
 
     @Autowired
     BCryptPasswordEncoder bCryptPasswordEncoder;
@@ -53,6 +66,11 @@ public class UserProfileController {
 
     @Autowired
     OrderService orderService;
+
+    @Autowired
+    UserRepository userRepository;
+    @Autowired
+    EmailService emailService;
 
     @Autowired
     UserProfileService userProfileService;
@@ -133,6 +151,7 @@ public class UserProfileController {
         orderRepository.save(orders);
         return "redirect:/orderHistory";
     }
+
 
 
 
@@ -235,6 +254,59 @@ public class UserProfileController {
     @GetMapping("/userWallet")
     public String userWallet(){
         return "user/wallet";
+    }
+
+
+
+
+    // chat implementation
+
+    @GetMapping("/chat")
+    public String chat(Model model,Principal principal){
+        List<Chat> chats = chatRepository.findAll();
+        List<Chat> send = new ArrayList<>();
+        List<Chat> received = new ArrayList<>();
+        List<String> names = new ArrayList<>();
+
+        User user = userService.getUserByEmail(principal.getName());
+        Referral referral = referralRepository.findByReferrer(user);
+
+        for(Chat chat : chats) {
+            if (Objects.equals(user.getId(), chat.getSenderId())) {
+                Chat chatMessage = new Chat();
+                chatMessage.setChatContent(chat.getChatContent());
+                chatMessage.setReceiverId(chat.getReceiverId());
+                chatMessage.setToWhome(Objects.requireNonNull(userService.findById(chat.getReceiverId()).orElse(null)).getEmail());
+                send.add(chatMessage);
+            }
+            if (Objects.equals(user.getId(), chat.getReceiverId())) {
+                Chat chatMessage = new Chat();
+                chatMessage.setChatContent(chat.getChatContent());
+                chatMessage.setSenderId(chat.getSenderId());
+                chatMessage.setToWhome(Objects.requireNonNull(userService.findById(chat.getSenderId()).orElse(null)).getEmail());
+                received.add(chatMessage);
+
+            }
+            model.addAttribute("replay", names);
+            model.addAttribute("send", send);
+            model.addAttribute("received", received);
+            model.addAttribute("referral", referral.getReferralCode());
+        }
+        return "user/chat";
+    }
+
+    @PostMapping("/chat/form")
+    public String sendChat(@RequestParam("chatContent") String chatContent,
+                           @RequestParam("receiverEmail") String receiverEmail,
+                           RedirectAttributes redirectAttributes,
+                           Principal principal){
+        String senderEmail = principal.getName();
+        String subject = "message from "+senderEmail;
+        emailService.sendEmail(receiverEmail, subject, chatContent,senderEmail, receiverEmail);
+        System.out.println(chatContent);
+        redirectAttributes.addFlashAttribute("chatContent",chatContent);
+        redirectAttributes.addFlashAttribute("toWho",receiverEmail);
+        return "redirect:/chat";
     }
 
 

@@ -50,7 +50,7 @@ public class ReferralController {
         @GetMapping("/track")
         public String trackReferrals(Model model, Principal principal) {
 
-            List<Referral> referrals = referralService.getReferrals(principal.getName());
+            Referral referrals = referralService.getReferrals(principal.getName());
             model.addAttribute("referrals", referrals);
             System.out.println(referrals);
             return "trackReferral";
