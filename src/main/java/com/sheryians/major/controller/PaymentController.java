@@ -102,7 +102,6 @@ public class PaymentController {
                 List<CartItem> cartItems = cartItemService.getAllItems(cart);
                 List<Address> address = addressService.findAllUsersAddress(user.getId());
 
-
                 double totalPrice = cart.calculateCartTotal();
 
                 Coupon coupon = null;
@@ -119,6 +118,7 @@ public class PaymentController {
                             double discountAmount = (totalPrice * coupon.getDiscount()) / 100.0;
                             if (discountAmount > coupon.getMaxAmount()) {
                                 discountAmount = coupon.getMaxAmount();
+
                                 TotalPriceAfterDiscount = totalPrice - discountAmount;
                                 model.addAttribute("total", TotalPriceAfterDiscount);
                             }
@@ -171,126 +171,193 @@ public class PaymentController {
     @GetMapping("/payWallet")
     public String payUsingWallet(@RequestParam Long selectedAddress, Principal principal, Model model, RedirectAttributes redidAttrs) {
 
-        User user = userService.getUserByEmail(principal.getName());
-        Cart cart = cartService.getCartForUser(principal.getName());
-        Address address = addressService.findById(selectedAddress);
-        Wallet wallet = user.getWallet();
+        if(principal!=null){
+            User user = userService.getUserByEmail(principal.getName());
+            Cart cart = cartService.getCartForUser(principal.getName());
+            Address address = addressService.findById(selectedAddress);
+            Wallet wallet = user.getWallet();
 
-        if(TotalPriceAfterDiscount!=0){
-            totalPrice = TotalPriceAfterDiscount;
-        }else{
-            totalPrice = cart.calculateCartTotal();
-        }
+            if(TotalPriceAfterDiscount!=0){
+                totalPrice = TotalPriceAfterDiscount;
+            }else{
+                totalPrice = cart.calculateCartTotal();
+            }
 
-        if (wallet.getWalletAmount() > totalPrice) {
-            double currentWalletAmt = wallet.getWalletAmount();
-            wallet.setWalletAmount(currentWalletAmt - totalPrice);
-            walletRepository.save(wallet);
-            Orders order = new Orders();
-            order.setOrderStatus(OrderStatus.ORDER);
-            order.setUser(user);
-            order.setAmount(totalPrice);
-            order.setLocalDate(LocalDateTime.now());
+            if (wallet.getWalletAmount() > totalPrice) {
+                double currentWalletAmt = wallet.getWalletAmount();
+                wallet.setWalletAmount(currentWalletAmt - totalPrice);
+                walletRepository.save(wallet);
+
+                List<CartItem> allCartItems = cartItemService.getAllItems(cart);
+                Double discountPrice = 0.0;
+                Double total = 0.0;
+                for (CartItem cartItems : allCartItems){
+                    if (cartItems.getProduct().getOfferDiscount()!=0){
+                        discountPrice = discountService.applyDiscount(cartItems.getProduct().getPrice(), cartItems.getProduct().getOfferDiscount());
+                        total = discountPrice + total;
+                    }
+                    if (cartItems.getProduct().getCategory().getOfferDiscount()!=0){
+                        discountPrice = discountService.applyDiscount(cartItems.getProduct().getPrice(), cartItems.getProduct().getCategory().getOfferDiscount());
+                        total = discountPrice + total;
+                    }
+
+                }
+                System.out.println("typo"+total);
+
+
+
+
+
+
+                if (referralService.userHasReferred(user) || referralService.userHasReferrer(user)){
+                    Referral referral;
+                    if(referralService.userHasReferred(user)){
+                        referral = referralRepository.findByReferred(user);
+                        if (Objects.equals(user.getId(), referral.getReferred().getId())) {
+                            if (referral.isCompleted()) {
+                                if (referral.isReferredPurchase()) {
+                                    totalPrice = cart.calculateCartTotal();
+                                    double discountAmount = (totalPrice * 10) / 100.0;
+                                    totalPrice = totalPrice - discountAmount;
+                                    referral.setReferredPurchase(false);
+                                    System.out.println(totalPrice + "if2");
+                                    referralRepository.save(referral);
+                                }
+                            }
+                        }
+                    }else{
+                        referral = referralRepository.findByReferrer(user);
+                        if (Objects.equals(user.getId(), referral.getReferrer().getId())){
+                            if (referral.isCompleted()){
+                                if (referral.isReferrerPurchase()) {
+                                    totalPrice = cart.calculateCartTotal();
+                                    double discountAmount = (totalPrice * 10) / 100.0;
+                                    totalPrice = totalPrice - discountAmount;
+                                    System.out.println(totalPrice + "if3");
+                                    referral.setReferrerPurchase(false);
+                                    referralRepository.save(referral);
+                                }
+                            }
+                        }
+                    }
+
+                }
+
+
+
+
+                Orders order = new Orders();
+                order.setOrderStatus(OrderStatus.ORDER);
+                order.setUser(user);
+                order.setAmount(cart.calculateCartTotal());
+                order.setLocalDate(LocalDateTime.now());
 //        order.getOrderItems(cartItems);
-            order.setAddress(address);
-            order.setPaymentMethod(PaymentMethod.WALLET);
-            orderRepository.save(order);
-            List<OrderItem> orderItems = orderItemService.moveItemsFromCartToOrder( principal.getName(),order);
-            return "redirect:/";
-        } else {
-            System.out.println("your wallet doesn't have enough money");
+                order.setAddress(address);
+                order.setPaymentMethod(PaymentMethod.WALLET);
+                order.setDiscountAmount(total);
+                orderRepository.save(order);
+
+                List<OrderItem> orderItems = orderItemService.moveItemsFromCartToOrder( principal.getName(),order);
+                return "redirect:/";
+            } else {
+                System.out.println("your wallet doesn't have enough money");
+            }
+            redidAttrs.addFlashAttribute("noMoney","!!!You dont have enough money in your wallet");
+            return "redirect:/orderPlaced";
         }
-        redidAttrs.addFlashAttribute("noMoney","!!!You dont have enough money in your wallet");
-        return "redirect:/orderPlaced";
+        return "redirect:/login";
     }
 
 
     @PostMapping("/user/submitOrder")
     public String submitOrder(@RequestParam Long selectedAddress, Principal principal, Model model, RedirectAttributes redidAttrs){
 
-        User user = userService.getUserByEmail(principal.getName());
-        Cart cart = cartService.getCartForUser(principal.getName());
-        Address address = addressService.findById(selectedAddress);
-        List<CartItem> allCartItems = cartItemService.getAllItems(cart);
+        if (principal!=null){
+            User user = userService.getUserByEmail(principal.getName());
+            Cart cart = cartService.getCartForUser(principal.getName());
+            Address address = addressService.findById(selectedAddress);
+            List<CartItem> allCartItems = cartItemService.getAllItems(cart);
 
-        if(TotalPriceAfterDiscount!=0){
-            totalPrice = TotalPriceAfterDiscount;
-            System.out.println(totalPrice+"if1");
-        }else{
-            totalPrice = cart.calculateCartTotal();
-            System.out.println(totalPrice+"else1");
-        }
-        Double discountPrice = 0.0;
-        Double total = 0.0;
-        for (CartItem cartItems : allCartItems){
-            if (cartItems.getProduct().getOfferDiscount()!=0){
-                discountPrice = discountService.applyDiscount(cartItems.getProduct().getPrice(), cartItems.getProduct().getOfferDiscount());
-                total = discountPrice + total;
-            }
-            if (cartItems.getProduct().getCategory().getOfferDiscount()!=0){
-                discountPrice = discountService.applyDiscount(cartItems.getProduct().getPrice(), cartItems.getProduct().getCategory().getOfferDiscount());
-                total = discountPrice + total;
-            }
-
-        }
-        System.out.println("typo"+total);
-
-
-
-
-
-
-        if (referralService.userHasReferred(user) || referralService.userHasReferrer(user)){
-            Referral referral;
-            if(referralService.userHasReferred(user)){
-                referral = referralRepository.findByReferred(user);
-                if (Objects.equals(user.getId(), referral.getReferred().getId())) {
-                    if (referral.isCompleted()) {
-                        if (referral.isReferredPurchase()) {
-                            totalPrice = cart.calculateCartTotal();
-                            double discountAmount = (totalPrice * 10) / 100.0;
-                            totalPrice = totalPrice - discountAmount;
-                            referral.setReferredPurchase(false);
-                            System.out.println(totalPrice + "if2");
-                            referralRepository.save(referral);
-                        }
-                    }
-                }
+            if(TotalPriceAfterDiscount!=0){
+                totalPrice = TotalPriceAfterDiscount;
+                System.out.println(totalPrice+"if1");
             }else{
-                referral = referralRepository.findByReferrer(user);
-                if (Objects.equals(user.getId(), referral.getReferrer().getId())){
-                    if (referral.isCompleted()){
-                        if (referral.isReferrerPurchase()) {
-                            totalPrice = cart.calculateCartTotal();
-                            double discountAmount = (totalPrice * 10) / 100.0;
-                            totalPrice = totalPrice - discountAmount;
-                            System.out.println(totalPrice + "if3");
-                            referral.setReferrerPurchase(false);
-                            referralRepository.save(referral);
+                totalPrice = cart.calculateCartTotal();
+                System.out.println(totalPrice+"else1");
+            }
+            Double discountPrice = 0.0;
+            Double total = 0.0;
+            for (CartItem cartItems : allCartItems){
+                if (cartItems.getProduct().getOfferDiscount()!=0){
+                    discountPrice = discountService.applyDiscount(cartItems.getProduct().getPrice(), cartItems.getProduct().getOfferDiscount());
+                    total = discountPrice + total;
+                }
+                if (cartItems.getProduct().getCategory().getOfferDiscount()!=0){
+                    discountPrice = discountService.applyDiscount(cartItems.getProduct().getPrice(), cartItems.getProduct().getCategory().getOfferDiscount());
+                    total = discountPrice + total;
+                }
+
+            }
+            System.out.println("typo"+total);
+
+
+
+
+
+
+            if (referralService.userHasReferred(user) || referralService.userHasReferrer(user)){
+                Referral referral;
+                if(referralService.userHasReferred(user)){
+                    referral = referralRepository.findByReferred(user);
+                    if (Objects.equals(user.getId(), referral.getReferred().getId())) {
+                        if (referral.isCompleted()) {
+                            if (referral.isReferredPurchase()) {
+                                totalPrice = cart.calculateCartTotal();
+                                double discountAmount = (totalPrice * 10) / 100.0;
+                                totalPrice = totalPrice - discountAmount;
+                                referral.setReferredPurchase(false);
+                                System.out.println(totalPrice + "if2");
+                                referralRepository.save(referral);
+                            }
+                        }
+                    }
+                }else{
+                    referral = referralRepository.findByReferrer(user);
+                    if (Objects.equals(user.getId(), referral.getReferrer().getId())){
+                        if (referral.isCompleted()){
+                            if (referral.isReferrerPurchase()) {
+                                totalPrice = cart.calculateCartTotal();
+                                double discountAmount = (totalPrice * 10) / 100.0;
+                                totalPrice = totalPrice - discountAmount;
+                                System.out.println(totalPrice + "if3");
+                                referral.setReferrerPurchase(false);
+                                referralRepository.save(referral);
+                            }
                         }
                     }
                 }
+
             }
 
-        }
 
 
 
-
-        Orders order = new Orders();
-        order.setOrderStatus(OrderStatus.ORDER);
-        order.setUser(user);
-        order.setAmount(cart.calculateCartTotal());
-        order.setLocalDate(LocalDateTime.now());
+            Orders order = new Orders();
+            order.setOrderStatus(OrderStatus.ORDER);
+            order.setUser(user);
+            order.setAmount(cart.calculateCartTotal());
+            order.setLocalDate(LocalDateTime.now());
 //        order.getOrderItems(cartItems);
-        order.setAddress(address);
-        order.setPaymentMethod(PaymentMethod.PAY_ON_DELIVERY);
-        order.setDiscountAmount(total);
-        orderRepository.save(order);
+            order.setAddress(address);
+            order.setPaymentMethod(PaymentMethod.PAY_ON_DELIVERY);
+            order.setDiscountAmount(total);
+            orderRepository.save(order);
 
-        List<OrderItem> orderItems = orderItemService.moveItemsFromCartToOrder( principal.getName(),order);
+            List<OrderItem> orderItems = orderItemService.moveItemsFromCartToOrder( principal.getName(),order);
 
-        return "redirect:/";
+            return "redirect:/";
+        }
+        return "redirect:/login";
     }
 
 
@@ -329,36 +396,94 @@ public class PaymentController {
 
     @PostMapping("/payment/success/")
     public String paymentSuccess(Principal principal, HttpSession session) {
-        Long selectedAddressId = (Long) session.getAttribute("selectedAddressId");
-        Orders order = new Orders();
-        User user = userService.getUserByEmail(principal.getName());
-        Cart cart = cartService.getCartForUser(principal.getName());
-        Address address = addressService.findById(selectedAddressId);
-        List<CartItem> cartItems = cartItemService.getAllItems(cart);
-        CartItem cartItem = cartItems.get(0);
+       if(principal!=null){
+           Long selectedAddressId = (Long) session.getAttribute("selectedAddressId");
+           User user = userService.getUserByEmail(principal.getName());
+           Cart cart = cartService.getCartForUser(principal.getName());
+           Address address = addressService.findById(selectedAddressId);
 
 
 
-        if(TotalPriceAfterDiscount!=0){
-            totalPrice = TotalPriceAfterDiscount;
-            System.out.println(totalPrice);
-        }else{
-            totalPrice = cart.calculateCartTotal();
-            System.out.println(totalPrice);
-        }
-        order.setOrderStatus(OrderStatus.ORDER);
+           if(TotalPriceAfterDiscount!=0){
+               totalPrice = TotalPriceAfterDiscount;
+               System.out.println(totalPrice);
+           }else{
+               totalPrice = cart.calculateCartTotal();
+               System.out.println(totalPrice);
+           }
+           List<CartItem> allCartItems = cartItemService.getAllItems(cart);
+           Double discountPrice = 0.0;
+           Double total = 0.0;
+           for (CartItem cartItems : allCartItems){
+               if (cartItems.getProduct().getOfferDiscount()!=0){
+                   discountPrice = discountService.applyDiscount(cartItems.getProduct().getPrice(), cartItems.getProduct().getOfferDiscount());
+                   total = discountPrice + total;
+               }
+               if (cartItems.getProduct().getCategory().getOfferDiscount()!=0){
+                   discountPrice = discountService.applyDiscount(cartItems.getProduct().getPrice(), cartItems.getProduct().getCategory().getOfferDiscount());
+                   total = discountPrice + total;
+               }
 
-        order.setUser(user);
-        order.setAmount(totalPrice);
-        order.setLocalDate(LocalDateTime.now());
+           }
+           System.out.println("typo"+total);
+
+
+
+
+
+
+           if (referralService.userHasReferred(user) || referralService.userHasReferrer(user)){
+               Referral referral;
+               if(referralService.userHasReferred(user)){
+                   referral = referralRepository.findByReferred(user);
+                   if (Objects.equals(user.getId(), referral.getReferred().getId())) {
+                       if (referral.isCompleted()) {
+                           if (referral.isReferredPurchase()) {
+                               totalPrice = cart.calculateCartTotal();
+                               double discountAmount = (totalPrice * 10) / 100.0;
+                               totalPrice = totalPrice - discountAmount;
+                               referral.setReferredPurchase(false);
+                               System.out.println(totalPrice + "if2");
+                               referralRepository.save(referral);
+                           }
+                       }
+                   }
+               }else{
+                   referral = referralRepository.findByReferrer(user);
+                   if (Objects.equals(user.getId(), referral.getReferrer().getId())){
+                       if (referral.isCompleted()){
+                           if (referral.isReferrerPurchase()) {
+                               totalPrice = cart.calculateCartTotal();
+                               double discountAmount = (totalPrice * 10) / 100.0;
+                               totalPrice = totalPrice - discountAmount;
+                               System.out.println(totalPrice + "if3");
+                               referral.setReferrerPurchase(false);
+                               referralRepository.save(referral);
+                           }
+                       }
+                   }
+               }
+
+           }
+
+
+
+
+           Orders order = new Orders();
+           order.setOrderStatus(OrderStatus.ORDER);
+           order.setUser(user);
+           order.setAmount(cart.calculateCartTotal());
+           order.setLocalDate(LocalDateTime.now());
 //        order.getOrderItems(cartItems);
-        order.setAddress(address);
-        order.setPaymentMethod(PaymentMethod.RAZORPAY);
-        orderRepository.save(order);
-
-        List<OrderItem> orderItems = orderItemService.moveItemsFromCartToOrder( principal.getName(),order);
-        System.out.println(orderItems);
-        return "redirect:/";
+           order.setAddress(address);
+           order.setPaymentMethod(PaymentMethod.RAZORPAY);
+           order.setDiscountAmount(total);
+           orderRepository.save(order);
+           List<OrderItem> orderItems = orderItemService.moveItemsFromCartToOrder( principal.getName(),order);
+           System.out.println(orderItems);
+           return "redirect:/";
+       }
+       return "redirect:/login";
     }
 
 }

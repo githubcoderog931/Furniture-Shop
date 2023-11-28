@@ -30,27 +30,26 @@ public class UserController {
 
     @GetMapping("/user")
     String userProfile(Model model, Principal name){
-        User user = userService.findByUsername(name.getName());
-        Referral referral = null;
-        if(name.getName()!= null){
-            Cart cart = cartService.getCartForUser(name.getName());
-            if (cart != null){
-                List<CartItem> cartItemList =  cart.getCartItems();
-                model.addAttribute("cartCount", cartItemList.stream().map(x -> x.getQuantity()).reduce(0, Integer::sum));
+        if(name!=null){
+            User user = userService.findByUsername(name.getName());
+            Referral referral = null;
+            if(name.getName()!= null){
+                Cart cart = cartService.getCartForUser(name.getName());
+                if (cart != null){
+                    List<CartItem> cartItemList =  cart.getCartItems();
+                    model.addAttribute("cartCount", cartItemList.stream().map(x -> x.getQuantity()).reduce(0, Integer::sum));
 
+                }
+                referral = referralRepository.findByReferrer(user);
             }
-            referral = referralRepository.findByReferrer(user);
+            assert referral != null;
+            model.addAttribute("referralCode",referral.getReferralCode());
+            model.addAttribute("user",user);
+
+            return "userProfile";
         }
-        assert referral != null;
-        model.addAttribute("referralCode",referral.getReferralCode());
-        model.addAttribute("user",user);
-
-        return "userProfile";
+        return "redirect:/login";
     }
-
-
-
-
 
 
 }

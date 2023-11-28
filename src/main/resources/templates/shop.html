@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml" xmlns:sec="http://www.w3.org/1999/xhtml">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -72,12 +72,12 @@
 <div class="p-3 text-center bg-white border-bottom">
   <div class="container-fluid">
     <div class="row d-flex justify-content-between align-items-center bg-light">
-        <div class="bg-danger" style="width: 23px;">
+        <div class="bg-danger col-1" style="width: 23px;">
             <a target="_blank" class="float-start">
                 <img th:src="@{/images/logo.png}" src="../../static/images/logo.png" width="auto" height="50" />
             </a>
         </div>
-        <div  style="width: auto;">
+        <div  style="width: auto;" class="col-3">
             <form  action="/search" method="get">
                 <div class="input-group">
                     <input type="text"  class="form-control" name="name" placeholder="Search by name" aria-label="Search">
@@ -87,22 +87,19 @@
                 </div>
             </form>
         </div>
-        <div >
-            <div class="d-flex">
+        <div class="col-3 d-flex justify-content-between">
                 <div sec:authorize="hasRole('ADMIN')">
                     <a th:href="@{admin/home}" class=" btn btn-outline-dark"> Admin Panel</a>
                 </div>
                 <div sec:authorize="hasRole('USER')">
                     <a th:href="@{/user}"class="btn btn-outline-dark" > Profile</a>
                 </div>
+<!--                <div class="btn btn-outline-danger mr-2 d-flex">-->
+<!--                        <i class="fas fa-heart m-1 me-md-2"></i>-->
+<!--                        <p >Wishlist</p>-->
+<!--                </div>-->
                 <div>
-                    <a href="#">
-                        <i class="fas fa-heart m-1 me-md-2"></i>
-                        <p class="btn btn-outline-danger mr-2">Wishlist</p>
-                    </a>
-                </div>
-                <div>
-                    <a class="btn btn-outline-dark mt-auto mr-2" th:href="@{/cart}" href="#">
+                    <a class="btn btn-outline-dark mt-auto me-2" th:href="@{/cart}" href="#">
                         Cart
                         <i class="bi-cart-fill me-1"></i>
                         <span th:text="${cartCount}" class="badge bg-dark text-white ms-1 rounded-pill">0</span>
@@ -114,7 +111,6 @@
                 <div sec:authorize="isAuthenticated()">
                     <a th:href="@{/logout}" class="btn btn-outline-dark mt-auto mr-2">Sign Out</a>
                 </div>
-            </div>
         </div>       
     </div>
   
@@ -175,9 +171,9 @@
                 <p class="text-black">Only <span th:text="${product.unitsInStock}"></span>stock</p>
                 <div class="card-footer d-flex align-items-end pt-3 px-0 pb-0 mt-auto">
                   <a th:href="@{/cart/add/{id}(id = ${product.id})}" class="btn btn-outline-success shadow-0 me-1">Add to cart</a>
-                  <a th:href="@{your-wishlist-link}" class="ml-2 btn btn-light border px-2 pt-2 icon-hover">
+                  <!-- <a th:href="@{your-wishlist-link}" class="ml-2 btn btn-light border px-2 pt-2 icon-hover">
                     <i class="fas fa-heart fa-lg" style="color: red; padding-left: 1px;"></i>
-                </a>                
+                </a>                 -->
                 </div>
               </div>
             </div>

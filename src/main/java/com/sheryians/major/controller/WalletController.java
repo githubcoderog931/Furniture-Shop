@@ -36,10 +36,19 @@ public class WalletController {
 
     @GetMapping("/wallet")
     public String showWallet(Model model, Principal principal){
-        User user = userService.getUserByEmail(principal.getName());
-        if(user!=null){
-            if(user.getWallet()!=null){
-                Wallet wallet = user.getWallet();
+        if(principal!=null){
+            User user = userService.getUserByEmail(principal.getName());
+            if(user!=null){
+                if(user.getWallet()!=null){
+                    Wallet wallet = user.getWallet();
+                    Double amount = wallet.getWalletAmount();
+                    model.addAttribute("user",user);
+                    model.addAttribute("wallet",wallet);
+                    model.addAttribute("amount",amount);
+
+                    return "user/wallet";
+                }
+                Wallet wallet = walletService.createWallet(user);
                 Double amount = wallet.getWalletAmount();
                 model.addAttribute("user",user);
                 model.addAttribute("wallet",wallet);
@@ -47,13 +56,6 @@ public class WalletController {
 
                 return "user/wallet";
             }
-            Wallet wallet = walletService.createWallet(user);
-            Double amount = wallet.getWalletAmount();
-            model.addAttribute("user",user);
-            model.addAttribute("wallet",wallet);
-            model.addAttribute("amount",amount);
-
-            return "user/wallet";
         }
 
         return "redirect:/login";

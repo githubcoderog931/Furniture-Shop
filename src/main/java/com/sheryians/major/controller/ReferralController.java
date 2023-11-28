@@ -33,44 +33,53 @@ public class ReferralController {
 
         @GetMapping("/generate")
         public String generateReferralCode(RedirectAttributes redirectAttributes, Principal principal) {
-            Referral referral = new Referral();
-            User user = userService.findByUsername(principal.getName());
-            String referralCode = referralService.generateReferralCode(principal.getName());
-            redirectAttributes.addFlashAttribute("referralCode", referralCode);
-            referral.setReferralCode(referralCode);
-            referral.setCompleted(false);
-            referral.setReferrerPurchase(false);
-            referral.setReferredPurchase(false);
-            referral.setReferrer(user);
-            referralRepository.save(referral);
-            System.out.println();
-            return "redirect:/user";
+            if(principal!=null){
+                Referral referral = new Referral();
+                User user = userService.findByUsername(principal.getName());
+                String referralCode = referralService.generateReferralCode(principal.getName());
+                redirectAttributes.addFlashAttribute("referralCode", referralCode);
+                referral.setReferralCode(referralCode);
+                referral.setCompleted(false);
+                referral.setReferrerPurchase(false);
+                referral.setReferredPurchase(false);
+                referral.setReferrer(user);
+                referralRepository.save(referral);
+                System.out.println();
+                return "redirect:/user";
+            }
+            return "redirect:/login";
         }
 
         @GetMapping("/track")
         public String trackReferrals(Model model, Principal principal) {
 
-            Referral referrals = referralService.getReferrals(principal.getName());
-            model.addAttribute("referrals", referrals);
-            System.out.println(referrals);
-            return "trackReferral";
+            if(principal!=null){
+                Referral referrals = referralService.getReferrals(principal.getName());
+                model.addAttribute("referrals", referrals);
+                System.out.println(referrals);
+                return "trackReferral";
+            }
+            return "redirect:/login";
         }
 
         @PostMapping("/applyCode")
         public String applyReferralCode(@RequestParam("referral") String referralCode, Model model, Principal principal){
-            System.out.println(referralCode);
-            User referrerUser = userService.getUserByEmail(principal.getName());
-            User user = userRepository.findByReferralCode(referralCode);
-            if (user!=null) {
-                Referral referral = referralRepository.findByReferralCode(referralCode);
-                referral.setReferred(referrerUser);
-                referral.setReferrerPurchase(true);
-                referral.setReferredPurchase(true);
-                referral.setCompleted(true);
-                referralRepository.save(referral);
-            }
-                return "redirect:/user";
+           if(principal!=null){
+               System.out.println(referralCode);
+               User referrerUser = userService.getUserByEmail(principal.getName());
+               User user = userRepository.findByReferralCode(referralCode);
+               if (user!=null) {
+                   Referral referral = referralRepository.findByReferralCode(referralCode);
+                   referral.setReferred(referrerUser);
+                   referral.setReferrerPurchase(true);
+                   referral.setReferredPurchase(true);
+                   referral.setCompleted(true);
+                   referralRepository.save(referral);
+               }
+               return "redirect:/user";
 
+           }
+           return "redirect:/login";
         }
 
 //    @GetMapping("/admin/track-all")

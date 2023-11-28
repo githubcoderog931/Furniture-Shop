@@ -128,7 +128,7 @@ a{
         <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
             <!-- Content goes here -->
             <div class="container mt-4">
-                <div class="d-flex ">
+                <div class="d-flex mb-3">
                     <div>
                         <h2 class="mb-0 pb-0 ">Admin Dashboard</h2>
                         <a href="/weekly" class="btn btn-success">weeks</a>
@@ -203,34 +203,23 @@ a{
                     </div>
                 </div>
                 
-                <!-- Dropdown for selecting time period -->
-                <div class="form-group">
-                    <label for="timePeriodSelector">Select Time Period:</label>
-                    <select id="timePeriodSelector" onchange="updateCharts(this.value)" class="form-control">
-                        <option value="WEEKLY">Weekly</option>
-                        <option value="DAILY">Daily</option>
-                        <option value="MONTHLY">Monthly</option>
-                    </select>
-                </div>
+              
 
     <div class="row">
         <div class="col-md-6 mb-4">
             <div class="card shadow-lg">
                 <div class="card-body">
-                    <h5 class="card-title">Daily Sales</h5>
-                    <canvas id="dailySalesChart" width="500" height="500"></canvas>
+                    <h5 class="card-title">Daily Chart</h5>
+                    <canvas id="myChart" width="500" height="500"></canvas>
                 </div>
             </div>
+        </div>
+        <div class="col-md-6 mb-4">
+                    <h5 class="card-title">Weekly Sales</h5>
+                    <div id="chartContainer" width="500" height="500"></div>
         </div>
         <!-- Pie Chart -->
-        <div class="col-md-6 mb-4">
-            <div class="card shadow-lg">
-                <div class="card-body">
-                    <h5 class="card-title">Pie Chart</h5>
-                    <canvas id="pieChart" width="500" height="500"></canvas>
-                </div>
-            </div>
-        </div>
+        
     </div>
 
         
@@ -266,166 +255,235 @@ a{
 </div>
 
 
-<!-- JavaScript for Chart.js -->
+<!--&lt;!&ndash; JavaScript for Chart.js &ndash;&gt;-->
+<!--<script th:inline="javascript">-->
+<!--    // Variables to store chart instances-->
+<!--    var allTimeSalesChart;-->
+<!--    var dailySalesChart;-->
+
+<!--    // Function to update the charts based on the selected time period-->
+<!--    function updateCharts(selectedPeriod) {-->
+<!--        console.log('Selected Period:', selectedPeriod);-->
+
+<!--        // Fetch data based on the selected time period-->
+<!--        fetch('/admin/dashboard/daily-graph?selectedPeriod=' + selectedPeriod)-->
+<!--            .then(response => response.json())-->
+<!--            .then(data => {-->
+<!--                console.log('Received Data:', data);-->
+
+<!--                // Update Chart for All Time Sales-->
+<!--                // updateChart('allTimeSalesChart', data.dailyOrderCounts, data.dailyOrderCounts);-->
+<!--               -->
+
+
+<!--                // Update Chart for Daily Sales-->
+<!--                updateChart('dailySalesChart', Object.keys(data.dailyOrderCounts), Object.values(data.dailyOrderCounts));-->
+<!--            })-->
+<!--            .catch(error => {-->
+<!--                console.error('Error fetching data:', error);-->
+<!--            });-->
+<!--    }-->
+
+<!--    // Function to update a chart-->
+<!--    function updateChart(chartId, labels, data) {-->
+<!--        var ctx = document.getElementById(chartId).getContext('2d');-->
+
+<!--        // Destroy existing chart instance if it exists-->
+<!--        if (window[chartId]) {-->
+<!--            window[chartId].destroy();-->
+<!--        }-->
+
+<!--        // Create a new chart instance-->
+<!--        window[chartId] = new Chart(ctx, {-->
+<!--            type: 'bar',-->
+<!--            data: {-->
+<!--                labels: labels,-->
+<!--                datasets: [{-->
+<!--                    label: chartId === 'allTimeSalesChart' ? 'All Time Sales' : 'Daily Sales',-->
+<!--                    data: data,-->
+<!--                    backgroundColor: chartId === 'allTimeSalesChart' ? 'rgba(75, 192, 192, 0.2)' : 'rgba(255, 99, 132, 0.2)',-->
+<!--                    borderColor: chartId === 'allTimeSalesChart' ? 'rgba(75, 192, 192, 1)' : 'rgba(255, 99, 132, 1)',-->
+<!--                    borderWidth: 1-->
+<!--                }]-->
+<!--            },-->
+<!--            options: {-->
+<!--                scales: {-->
+<!--                    y: {-->
+<!--                        beginAtZero: true-->
+<!--                    }-->
+<!--                }-->
+<!--            }-->
+<!--        });-->
+<!--    }-->
+
+<!--    // Initial load of the charts with default selected value-->
+<!--    updateCharts(document.getElementById('timePeriodSelector').value);-->
+<!--    fetch('/admin/dashboard/daily-graph?selectedPeriod=WEEKLY')-->
+<!--    .then(response => response.json())-->
+<!--    .then(data => {-->
+<!--        console.log('Weekly Data:', data);-->
+
+<!--        var ctxPolar = document.getElementById('polarChart').getContext('2d');-->
+<!--        -->
+<!--        // Extracting data for the polar chart-->
+<!--        var polarLabels = Object.keys(data.dailyOrderCounts);-->
+<!--        var polarData = Object.values(data.dailyOrderCounts);-->
+
+<!--        var polarChart = new Chart(ctxPolar, {-->
+<!--            type: 'polarArea',-->
+<!--            data: {-->
+<!--                labels: polarLabels,-->
+<!--                datasets: [{-->
+<!--                    label: 'Weekly Order Counts',-->
+<!--                    data: polarData,-->
+<!--                    backgroundColor: ['rgba(255, 99, 132, 0.5)', 'rgba(54, 162, 235, 0.5)', 'rgba(255, 206, 86, 0.5)'],-->
+<!--                    borderWidth: 1-->
+<!--                }]-->
+<!--            }-->
+<!--        });-->
+
+<!--    })-->
+<!--    .catch(error => {-->
+<!--        console.error('Error fetching weekly data:', error);-->
+<!--    });-->
+
+
+<!--    fetch('/admin/dashboard/daily-graph?selectedPeriod=WEEKLY')-->
+<!--    .then(response => response.json())-->
+<!--    .then(data => {-->
+<!--        console.log('Weekly Data:', data);-->
+
+<!--        var ctxPie = document.getElementById('pieChart').getContext('2d');-->
+<!--        -->
+<!--        // Extracting data for the pie chart-->
+<!--        var pieLabels = Object.keys(data.dailyOrderCounts);-->
+<!--        var pieData = Object.values(data.dailyOrderCounts);-->
+
+<!--        var pieChart = new Chart(ctxPie, {-->
+<!--            type: 'pie',-->
+<!--            data: {-->
+<!--                labels: pieLabels,-->
+<!--                datasets: [{-->
+<!--                    data: pieData,-->
+<!--                    backgroundColor: [-->
+<!--                        'rgba(255, 99, 132, 0.5)',-->
+<!--                        'rgba(54, 162, 235, 0.5)',-->
+<!--                        'rgba(255, 206, 86, 0.5)'-->
+<!--                    ]-->
+<!--                }]-->
+<!--            }-->
+<!--        });-->
+
+<!--    })-->
+<!--    .catch(error => {-->
+<!--        console.error('Error fetching weekly data:', error);-->
+<!--    });-->
+
+
+<!--</script>-->
+<!--<script th:inline="javascript">-->
+<!--    document.addEventListener("DOMContentLoaded", function() {-->
+<!--        fetch('admin/dashboard/all-time-sales')-->
+<!--            .then(response => response.json())-->
+<!--            .then(data => {-->
+<!--                // Create a basic static bar chart-->
+<!--                var staticChartCtx = document.getElementById('allTimeSalesChart').getContext('2d');-->
+
+<!--                var staticChart = new Chart(staticChartCtx, {-->
+<!--                    type: 'bar',-->
+<!--                    data: {-->
+<!--                        labels: data.monthlyLabel,-->
+<!--                        datasets: [{-->
+<!--                            label: 'All Time Sales',-->
+<!--                            data: data.monthlyRevenue,-->
+<!--                            backgroundColor: 'rgba(75, 192, 192, 0.2)',-->
+<!--                            borderColor: 'rgba(75, 192, 192, 1)',-->
+<!--                            borderWidth: 1-->
+<!--                        }]-->
+<!--                    },-->
+<!--                    options: {-->
+<!--                        scales: {-->
+<!--                            y: {-->
+<!--                                beginAtZero: true-->
+<!--                            }-->
+<!--                        }-->
+<!--                    }-->
+<!--                });-->
+<!--            })-->
+<!--            .catch(error => {-->
+<!--                console.error('Error fetching data:', error);-->
+<!--            });-->
+<!--    });-->
+<!--</script>--><script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.canvasjs.com/canvasjs.min.js"></script>
+
+
+
 <script th:inline="javascript">
-    // Variables to store chart instances
-    var allTimeSalesChart;
-    var dailySalesChart;
+    var dailyPrices = /*[[${dailyPrices}]]*/ [];
+    var dayLabels = ["Today", "Day 1", "Day 2", "Day 3", "Day 4", "Day 5", "Day 6"];
+    var barColors = ["red", "blue", "green", "orange", "purple", "teal", "brown"];
 
-    // Function to update the charts based on the selected time period
-    function updateCharts(selectedPeriod) {
-        console.log('Selected Period:', selectedPeriod);
+    var dailyData = dailyPrices;
 
-        // Fetch data based on the selected time period
-        fetch('/admin/dashboard/daily-graph?selectedPeriod=' + selectedPeriod)
-            .then(response => response.json())
-            .then(data => {
-                console.log('Received Data:', data);
+    var chartData = {
+        labels: dayLabels,
+        datasets: [{
+            label: "Daily Order Prices",
+            backgroundColor: barColors,
+            data: dailyData
+        }]
+    };
 
-                // Update Chart for All Time Sales
-                // updateChart('allTimeSalesChart', data.dailyOrderCounts, data.dailyOrderCounts);
-               
-
-
-                // Update Chart for Daily Sales
-                updateChart('dailySalesChart', Object.keys(data.dailyOrderCounts), Object.values(data.dailyOrderCounts));
-            })
-            .catch(error => {
-                console.error('Error fetching data:', error);
-            });
-    }
-
-    // Function to update a chart
-    function updateChart(chartId, labels, data) {
-        var ctx = document.getElementById(chartId).getContext('2d');
-
-        // Destroy existing chart instance if it exists
-        if (window[chartId]) {
-            window[chartId].destroy();
+    var chartOptions = {
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        },
+        legend: { display: false },
+        title: {
+            display: true,
+            text: "Daily Order Prices"
         }
+    };
 
-        // Create a new chart instance
-        window[chartId] = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: chartId === 'allTimeSalesChart' ? 'All Time Sales' : 'Daily Sales',
-                    data: data,
-                    backgroundColor: chartId === 'allTimeSalesChart' ? 'rgba(75, 192, 192, 0.2)' : 'rgba(255, 99, 132, 0.2)',
-                    borderColor: chartId === 'allTimeSalesChart' ? 'rgba(75, 192, 192, 1)' : 'rgba(255, 99, 132, 1)',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                }
-            }
-        });
-    }
-
-    // Initial load of the charts with default selected value
-    updateCharts(document.getElementById('timePeriodSelector').value);
-    fetch('/admin/dashboard/daily-graph?selectedPeriod=WEEKLY')
-    .then(response => response.json())
-    .then(data => {
-        console.log('Weekly Data:', data);
-
-        var ctxPolar = document.getElementById('polarChart').getContext('2d');
-        
-        // Extracting data for the polar chart
-        var polarLabels = Object.keys(data.dailyOrderCounts);
-        var polarData = Object.values(data.dailyOrderCounts);
-
-        var polarChart = new Chart(ctxPolar, {
-            type: 'polarArea',
-            data: {
-                labels: polarLabels,
-                datasets: [{
-                    label: 'Weekly Order Counts',
-                    data: polarData,
-                    backgroundColor: ['rgba(255, 99, 132, 0.5)', 'rgba(54, 162, 235, 0.5)', 'rgba(255, 206, 86, 0.5)'],
-                    borderWidth: 1
-                }]
-            }
-        });
-
-    })
-    .catch(error => {
-        console.error('Error fetching weekly data:', error);
+    var ctx = document.getElementById("myChart").getContext('2d');
+    var myChart = new Chart(ctx, {
+        type: 'bar',
+        data: chartData,
+        options: chartOptions
     });
-
-
-    fetch('/admin/dashboard/daily-graph?selectedPeriod=WEEKLY')
-    .then(response => response.json())
-    .then(data => {
-        console.log('Weekly Data:', data);
-
-        var ctxPie = document.getElementById('pieChart').getContext('2d');
-        
-        // Extracting data for the pie chart
-        var pieLabels = Object.keys(data.dailyOrderCounts);
-        var pieData = Object.values(data.dailyOrderCounts);
-
-        var pieChart = new Chart(ctxPie, {
-            type: 'pie',
-            data: {
-                labels: pieLabels,
-                datasets: [{
-                    data: pieData,
-                    backgroundColor: [
-                        'rgba(255, 99, 132, 0.5)',
-                        'rgba(54, 162, 235, 0.5)',
-                        'rgba(255, 206, 86, 0.5)'
-                    ]
-                }]
-            }
-        });
-
-    })
-    .catch(error => {
-        console.error('Error fetching weekly data:', error);
-    });
-
-
 </script>
 <script th:inline="javascript">
-    document.addEventListener("DOMContentLoaded", function() {
-        fetch('admin/dashboard/all-time-sales')
-            .then(response => response.json())
-            .then(data => {
-                // Create a basic static bar chart
-                var staticChartCtx = document.getElementById('allTimeSalesChart').getContext('2d');
+    var weeklyPrices = /*[[${weeklyPrices}]]*/[];
 
-                var staticChart = new Chart(staticChartCtx, {
-                    type: 'bar',
-                    data: {
-                        labels: data.monthlyLabel,
-                        datasets: [{
-                            label: 'All Time Sales',
-                            data: data.monthlyRevenue,
-                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                            borderColor: 'rgba(75, 192, 192, 1)',
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        scales: {
-                            y: {
-                                beginAtZero: true
-                            }
-                        }
-                    }
-                });
-            })
-            .catch(error => {
-                console.error('Error fetching data:', error);
-            });
-    });
+    window.onload = function () {
+        var chart = new CanvasJS.Chart("chartContainer", {
+            animationEnabled: true,
+            theme: "light2",
+            title: {
+                text: "Weekly Sales",
+            },
+
+            data: [{
+                type: "column",
+                showInLegend: true,
+                legendMarkerColor: "grey",
+                dataPoints: [
+                    { y: weeklyPrices[0], label: "Week 1" },
+                    { y: weeklyPrices[1], label: "Week 2" },
+                    { y: weeklyPrices[2], label: "Week 3" },
+                    { y: weeklyPrices[3], label: "Week 4" }
+                    // Add more dataPoints for weekly data
+                ]
+            }]
+        });
+        chart.render();
+    };
 </script>
+
+
 <script>
     function generatePDF() {
         var startDate = $("#startDate").val();

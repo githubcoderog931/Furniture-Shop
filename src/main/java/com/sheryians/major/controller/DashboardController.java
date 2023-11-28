@@ -7,6 +7,7 @@ import com.sheryians.major.domain.TimePeriod;
 import com.sheryians.major.domain.User;
 import com.sheryians.major.dto.SalesDto;
 import com.sheryians.major.repository.ReferralRepository;
+import com.sheryians.major.service.OrderService;
 import com.sheryians.major.service.ReferralService;
 import com.sheryians.major.service.SalesReportService;
 import com.sheryians.major.service.UserService;
@@ -37,6 +38,9 @@ import static com.sheryians.major.domain.TimePeriod.WEEKLY;
 @RequestMapping("/admin")
 public class DashboardController {
 
+
+    @Autowired
+    OrderService orderService;
     @Autowired
     SalesReportService salesReportService;
 
@@ -55,31 +59,73 @@ public class DashboardController {
     @GetMapping("/dashboard")
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public String showAdminPage(Model model, Principal principal){
-        User user = userService.findByUsername(principal.getName());
+        if(principal!=null){
+            User user = userService.findByUsername(principal.getName());
 
-        SalesDto salesDataForOneDay = salesReportService.getSalesForOneDay();
-        SalesDto salesDataForOneWeek = salesReportService.getSalesForOneWeek();
-        SalesDto salesDataForOneMonth = salesReportService.getSalesForOneMonth();
-        SalesDto salesDataForOneYear = salesReportService.getSalesForOneYear();
-        SalesDto getAllSales = salesReportService.getSalesForAllTime();
-
-
-
-        List<Referral> referral = referralRepository.findAll();
-        Long referralCount = (long) referral.size();
-        List<Referral> referralComplete = referralRepository.findByCompleted(true);
-        Long successfullReferral = (long) referralComplete.size();
+            SalesDto salesDataForOneDay = salesReportService.getSalesForOneDay();
+            SalesDto salesDataForOneWeek = salesReportService.getSalesForOneWeek();
+            SalesDto salesDataForOneMonth = salesReportService.getSalesForOneMonth();
+            SalesDto salesDataForOneYear = salesReportService.getSalesForOneYear();
+            SalesDto getAllSales = salesReportService.getSalesForAllTime();
 
 
-        model.addAttribute("successfullReferral",successfullReferral);
-        model.addAttribute("totalReferral",referralCount);
-        model.addAttribute("salesDataForOneDay",salesDataForOneDay);
-        model.addAttribute("salesDataForOneWeek",salesDataForOneWeek);
-        model.addAttribute("salesDataForOneMonth",salesDataForOneMonth);
-        model.addAttribute("salesDataForOneYear",salesDataForOneYear);
-        model.addAttribute("getAllSales",getAllSales);
-        System.out.println();
-        return "dashboard";
+
+            List<Referral> referral = referralRepository.findAll();
+            Long referralCount = (long) referral.size();
+            List<Referral> referralComplete = referralRepository.findByCompleted(true);
+            Long successfullReferral = (long) referralComplete.size();
+
+
+            model.addAttribute("successfullReferral",successfullReferral);
+            model.addAttribute("totalReferral",referralCount);
+            model.addAttribute("salesDataForOneDay",salesDataForOneDay);
+            model.addAttribute("salesDataForOneWeek",salesDataForOneWeek);
+            model.addAttribute("salesDataForOneMonth",salesDataForOneMonth);
+            model.addAttribute("salesDataForOneYear",salesDataForOneYear);
+            model.addAttribute("getAllSales",getAllSales);
+            System.out.println();
+
+
+            LocalDateTime now = LocalDateTime.now();
+            List<Orders> orderDates = orderService.getAllOrderDate();
+            List<Orders> orderPrice = orderService.getAllOrderPrice();
+//        double oneWeekPrice = 0.0;
+            double oneMonthPrice = 0.0;
+            double[] dailyPrices = new double[7];
+            double[] weeklyPrices = new double[4];
+
+            for (Orders order : orderDates) {
+                LocalDateTime orderDate = order.getLocalDate();
+                int price = (int) calculateOrderPriceForDay(order, orderPrice);
+                long weekIndex = (now.toLocalDate().toEpochDay() - orderDate.toLocalDate().toEpochDay()) / 7;
+                if (weekIndex >= 0 && weekIndex < 4) {
+                    weeklyPrices[Math.toIntExact(weekIndex)] += price;
+                }
+                if (now.minusMonths(1).isBefore(orderDate)) {
+                    oneMonthPrice += price;
+                }
+                long dayIndex = now.toLocalDate().toEpochDay() - orderDate.toLocalDate().toEpochDay();
+                if (dayIndex >= 0 && dayIndex < 7) {
+                    dailyPrices[Math.toIntExact(dayIndex)] += price;
+                }
+            }
+            model.addAttribute("dailyPrices", dailyPrices);
+            model.addAttribute("weeklyPrices", weeklyPrices);
+
+
+            return "dashboard";
+        }
+        return "redirect:/login";
+    }
+
+    private double calculateOrderPriceForDay(Orders order, List<Orders> orderPrice) {
+        double price = 0.0;
+        for (Orders orderItem : orderPrice) {
+            if (orderItem.equals(order)) {
+                price += orderItem.getAmount();
+            }
+        }
+        return price;
     }
 
     @GetMapping("/dashboard/graph")

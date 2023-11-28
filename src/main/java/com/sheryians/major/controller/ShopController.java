@@ -44,20 +44,24 @@ public class ShopController {
     @GetMapping("/shop")
     public String shop(Model model, Principal principal){
 
-        String username = principal.getName();
-        Cart cart = cartService.getCartForUser(username);
+        if(principal!=null){
+            String username = principal.getName();
+            Cart cart = cartService.getCartForUser(username);
 
-        if(username != null){
-            if (cart != null){
-                List<CartItem> cartItemList =  cart.getCartItems();
-                model.addAttribute("cartCount", cartItemList.stream().map(x -> x.getQuantity()).reduce(0, Integer::sum));
+            if(username != null){
+                if (cart != null){
+                    List<CartItem> cartItemList =  cart.getCartItems();
+                    model.addAttribute("cartCount", cartItemList.stream().map(x -> x.getQuantity()).reduce(0, Integer::sum));
 
+                }
             }
+            model.addAttribute("categories",categoryService.getAllCategory());
+            model.addAttribute("products",productService.getAllProduct());
+            model.addAttribute("cart",cart);
+            return findPaginated(1,model);
+        }else{
+            return "redirect:/login";
         }
-        model.addAttribute("categories",categoryService.getAllCategory());
-        model.addAttribute("products",productService.getAllProduct());
-        model.addAttribute("cart",cart);
-        return findPaginated(1,model);
     }
 
 
@@ -84,70 +88,83 @@ public class ShopController {
 
     @PostMapping("/shop/category/")
     public String shopByCategory(@RequestParam("min") Double min, @RequestParam("max") Double max, Model model, @RequestParam("selectedCategory") int id, Principal principal, RedirectAttributes redirectAttributes){
-        String username = principal.getName();
-        Cart cart = cartService.getCartForUser(username);
-        Category category = categoryRepository.findById(id).orElse(null);
-        if(username != null){
-            if (cart != null){
-                List<CartItem> cartItemList =  cart.getCartItems();
-                model.addAttribute("cartCount", cartItemList.stream().map(x -> x.getQuantity()).reduce(0, Integer::sum));
+        if(principal!=null){
+            String username = principal.getName();
+            Cart cart = cartService.getCartForUser(username);
+            Category category = categoryRepository.findById(id).orElse(null);
+            if(username != null){
+                if (cart != null){
+                    List<CartItem> cartItemList =  cart.getCartItems();
+                    model.addAttribute("cartCount", cartItemList.stream().map(x -> x.getQuantity()).reduce(0, Integer::sum));
 
+                }
             }
-        }
-        List<Product> filtered = productService.findProductByPrice(min,max,id);
-        if(filtered.isEmpty()){
-            assert category != null;
-            redirectAttributes.addFlashAttribute("filterEmpty","!! There are no products under Category "+category.getName()+" and price between "+ min +" and "+max+".");
-            return "redirect:/shop";
-        }
-        model.addAttribute("products",filtered);
-        model.addAttribute("categories",categoryService.getAllCategory());
-        model.addAttribute("cart",cart);
+            List<Product> filtered = productService.findProductByPrice(min,max,id);
+            if(filtered.isEmpty()){
+                assert category != null;
+                redirectAttributes.addFlashAttribute("filterEmpty","!! There are no products under Category "+category.getName()+" and price between "+ min +" and "+max+".");
+                return "redirect:/shop";
+            }
+            model.addAttribute("products",filtered);
+            model.addAttribute("categories",categoryService.getAllCategory());
+            model.addAttribute("cart",cart);
 
-        return "shop";
+            return "shop";
+        }else{
+            return "redirect:/login";
+        }
     }
 
     @GetMapping("/shop/viewproduct/{id}")
     public String viewProduct(Model model, @PathVariable int id,Principal principal){
-        String username = principal.getName();
-        Cart cart = cartService.getCartForUser(username);
+        if(principal!=null){
+            String username = principal.getName();
+            Cart cart = cartService.getCartForUser(username);
 
-        if(username != null){
-            if (cart != null){
-                List<CartItem> cartItemList =  cart.getCartItems();
-                model.addAttribute("cartCount", cartItemList.stream().map(x -> x.getQuantity()).reduce(0, Integer::sum));
+            if(username != null){
+                if (cart != null){
+                    List<CartItem> cartItemList =  cart.getCartItems();
+                    model.addAttribute("cartCount", cartItemList.stream().map(x -> x.getQuantity()).reduce(0, Integer::sum));
 
+                }
             }
-        }
-        model.addAttribute("product",productService.getProductById(id) );
-        model.addAttribute("cart",cart);
+            model.addAttribute("product",productService.getProductById(id) );
+            model.addAttribute("cart",cart);
 
-        return "viewProduct";
+            return "viewProduct";
+        }else{
+            return "redirect:/login";
+        }
     }
 
 
     @GetMapping("/search")
     public String search(@RequestParam(name = "name", required = false) String name, Model model,Principal principal) {
-        String username = principal.getName();
-        Cart cart = cartService.getCartForUser(username);
+        if(principal!=null){
+            String username = principal.getName();
+            Cart cart = cartService.getCartForUser(username);
 
-        if(username != null){
-            if (cart != null){
-                List<CartItem> cartItemList =  cart.getCartItems();
-                model.addAttribute("cartCount", cartItemList.stream().map(x -> x.getQuantity()).reduce(0, Integer::sum));
+            if(username != null){
+                if (cart != null){
+                    List<CartItem> cartItemList =  cart.getCartItems();
+                    model.addAttribute("cartCount", cartItemList.stream().map(x -> x.getQuantity()).reduce(0, Integer::sum));
 
+                }
             }
-        }
-        List<Product> searchResults = new ArrayList<>();
-        if (name != null && !name.isEmpty()) {
-            searchResults = productService.ignoreCaseForSearchDescription(name);
-        }
-        model.addAttribute("search", searchResults);
-        model.addAttribute("categories",categoryService.getAllCategory());
-        model.addAttribute("cart",cart);
+            List<Product> searchResults = new ArrayList<>();
+            if (name != null && !name.isEmpty()) {
+                searchResults = productService.ignoreCaseForSearchDescription(name);
+            }
+            model.addAttribute("search", searchResults);
+            model.addAttribute("categories",categoryService.getAllCategory());
+            model.addAttribute("cart",cart);
 
 
-        return "search1";
+            return "search1";
+        }
+        else{
+            return "redirect:/login";
+        }
     }
 
 //    @GetMapping("/payment")
