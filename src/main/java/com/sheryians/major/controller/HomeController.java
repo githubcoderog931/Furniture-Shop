@@ -92,7 +92,7 @@ public class HomeController {
         model.addAttribute("categories",categoryService.getAllCategory());
         model.addAttribute("products",productService.getAllProduct());
 
-        return "/home";
+        return "home";
 
 
 
